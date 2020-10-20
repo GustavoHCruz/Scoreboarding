@@ -1,23 +1,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct Instruction_R
 {
-    unsigned int opcode : 6; // Always zero
-    unsigned int rs : 5;     // Destination register
-    unsigned int rt : 5;     // Origin register 1
-    unsigned int rd : 5;     // Origin register 2
-    unsigned int shamt : 5;  // Shift operator
-    unsigned int funct : 6;  // Specifies the operation
+    unsigned int opcode : 6;      // Always zero
+    unsigned int rs : 5;          // Destination register
+    unsigned int rt : 5;          // Origin register 1
+    unsigned int rd : 5;          // Origin register 2
+    unsigned int shamt : 5;       // Shift operator
+    unsigned int funct : 6;       // Specifies the operation
 } Instruction_R;
 
 typedef struct Instruction_I
 {
-    unsigned int opcode : 6;
-    unsigned int rs : 5;
-    unsigned int rt : 5;
-    unsigned int immediate : 16;
+    unsigned int opcode : 6;       // Specifies the operation
+    unsigned int rs : 5;           // Destination register
+    unsigned int rt : 5;           // Origin register
+    unsigned int immediate : 16;   // Immediate value
 } Instruction_I;
 
 int register_map(char reg[2])
@@ -127,9 +128,19 @@ int main()
     Instruction_R A;
     Instruction_I B;
     int ret = inst_return(&A, &B, line);
+    unsigned long res;
     printf("Retornou: %i \n", ret);
-    if(ret == 1)
-        printf("%i,%i,%i,%i,%i,%i", A.opcode, A.rd, A.rs, A.rt, A.shamt, A.funct);
-    else if(ret == 2)
-        printf("%i,%i,%i,%i",B.opcode,B.rs,B.immediate,B.rt);
+    if(ret == 1){
+        res = A.funct + A.shamt*pow(2,6) + A.rd*pow(2,11) + A.rt*pow(2,16) + A.rs*pow(2,21) + A.opcode*pow(2,26);
+        printf("%i,%i,%i,%i,%i,%i - Numero 32 bits:%i", A.opcode, A.rs, A.rt, A.rd, A.shamt, A.funct, res);
+    }
+    else if(ret == 2){
+        res = B.immediate + B.rt*pow(2,16) + B.rs*pow(2,21) + B.opcode*pow(2,26);
+        printf("%i,%i,%i,%i - Numero 32 bits:%lu",B.opcode,B.rs,B.rt,B.immediate,res);
+    }
+    else
+    {
+        printf("Erro\n");
+    }
+    
 }
