@@ -23,7 +23,7 @@ enum registers
     F15 = 0b1111
 };
 
-typedef struct Instruction_R
+typedef struct Instruction_R // R instruction format
 {
     unsigned int opcode : 6; // Always zero
     unsigned int rs : 5;     // Destination register
@@ -33,7 +33,7 @@ typedef struct Instruction_R
     unsigned int funct : 6;  // Specifies the operation
 } Instruction_R;
 
-typedef struct Instruction_I
+typedef struct Instruction_I     // I instruction format
 {
     unsigned int opcode : 6;     // Specifies the operation
     unsigned int rs : 5;         // Destination register
@@ -41,7 +41,7 @@ typedef struct Instruction_I
     unsigned int immediate : 16; // Immediate value
 } Instruction_I;
 
-int register_map(char reg[2])
+int register_map(char reg[2])   // Function to map the registers
 {
     if (strcmp(reg, "F0") == 0)
         return 0;
@@ -77,7 +77,7 @@ int register_map(char reg[2])
         return 15;
 }
 
-int function_map(char *opcode)
+int function_map(char *opcode)          // Function to map funct field (for R format)
 {
     if (strcmp(opcode, "add") == 0)
         return 32;
@@ -95,7 +95,7 @@ int function_map(char *opcode)
         return 26;
 }
 
-int opcode_map(char *opcode)
+int opcode_map(char *opcode)            // Function to map opcode field (for I format)
 {
     if (strcmp(opcode, "addi") == 0)
         return 8;
@@ -107,7 +107,7 @@ int opcode_map(char *opcode)
         return 35;
 }
 
-int inst_return(Instruction_R *R, Instruction_I *I, char *str)
+int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the lines and map the parts of it into his respective format, returning it at end
 {
     int i = 0;
     char *token, *data[4];
@@ -145,7 +145,7 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str)
         return 0;
 }
 
-int converter(char *fileName)
+int converter(char *fileName)   // It opens the files and treat the logic of the converter
 {
     size_t len = 100;
     size_t size;
