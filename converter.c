@@ -119,6 +119,10 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str)
         token = strtok(NULL, " ");
         i++;
     }
+
+    int temp = strlen(data[3]);
+    data[3][temp] = '\0';
+
     if (strcmp(data[0], "add") == 0 || strcmp(data[0], "and") == 0 || strcmp(data[0], "or") == 0 || strcmp(data[0], "slt") == 0 || strcmp(data[0], "sub") == 0 || strcmp(data[0], "mult") == 0 || strcmp(data[0], "div") == 0)
     {
         R->opcode = 0;
@@ -147,7 +151,7 @@ int converter(char *fileName)
     size_t size;
     FILE *file, *result;
     file = fopen(fileName, "r");
-    result = fopen("binary.txt","wb");
+    result = fopen("binary.txt", "wb");
 
     if (file == NULL)
         return 0;
@@ -163,10 +167,17 @@ int converter(char *fileName)
     {
         ret = inst_return(&R, &I, line);
         if (ret == 1)
+        {
             res = R.funct + R.shamt * pow(2, 6) + R.rd * pow(2, 11) + R.rt * pow(2, 16) + R.rs * pow(2, 21) + R.opcode * pow(2, 26);
+            printf("%i,%i,%i,%i,%i,%i - Numero 32 bits:%i\n", R.opcode, R.rs, R.rt, R.rd, R.shamt, R.funct, res);
+        }
         else if (ret == 2)
+        {
             res = I.immediate + I.rt * pow(2, 16) + I.rs * pow(2, 21) + I.opcode * pow(2, 26);
-        fwrite(&res,1,sizeof(long unsigned int),result);
+            printf("%i,%i,%i,%i - Numero 32 bits:%lu\n", I.opcode, I.rs, I.rt, I.immediate, res);
+        }
+
+        fwrite(&res, 1, sizeof(long unsigned int), result);
     }
 
     fclose(file);
