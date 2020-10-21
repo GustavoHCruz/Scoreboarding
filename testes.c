@@ -70,9 +70,9 @@ int function_map(char *opcode)
     if (strcmp(opcode, "sub") == 0)
         return 34;
     if (strcmp(opcode, "mult") == 0)
-        return 26;
-    if (strcmp(opcode, "div") == 0)
         return 24;
+    if (strcmp(opcode, "div") == 0)
+        return 26;
 }
 
 int opcode_map(char *opcode)
@@ -124,7 +124,7 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str)
 int main()
 {
     //char line[] = "add F3 F1 F2";
-    char line[] = "lw F1 30 F2";
+    char line[] = "lw F4 10 F1";
     Instruction_R A;
     Instruction_I B;
     int ret = inst_return(&A, &B, line);
@@ -139,8 +139,6 @@ int main()
         printf("%i,%i,%i,%i - Numero 32 bits:%lu",B.opcode,B.rs,B.rt,B.immediate,res);
     }
     else
-    {
         printf("Erro\n");
-    }
     
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 enum registers
 {
@@ -34,10 +35,10 @@ typedef struct Instruction_R
 
 typedef struct Instruction_I
 {
-    unsigned int opcode : 6;
-    unsigned int rs : 5;
-    unsigned int rt : 5;
-    unsigned int immediate : 16;
+    unsigned int opcode : 6;     // Specifies the operation
+    unsigned int rs : 5;         // Destination register
+    unsigned int rt : 5;         // Origin register
+    unsigned int immediate : 16; // Immediate value
 } Instruction_I;
 
 int register_map(char reg[2])
@@ -89,9 +90,9 @@ int function_map(char *opcode)
     if (strcmp(opcode, "sub") == 0)
         return 34;
     if (strcmp(opcode, "mult") == 0)
-        return 26;
-    if (strcmp(opcode, "div") == 0)
         return 24;
+    if (strcmp(opcode, "div") == 0)
+        return 26;
 }
 
 int opcode_map(char *opcode)
@@ -144,20 +145,32 @@ int converter(char *fileName)
 {
     size_t len = 100;
     size_t size;
-    FILE *file;
+    FILE *file, *result;
     file = fopen(fileName, "r");
+    result = fopen("binary.txt","wb");
 
     if (file == NULL)
         return 0;
 
     char *line = NULL;
 
+    Instruction_R R;
+    Instruction_I I;
+    long unsigned int res;
+    int ret;
+
     while ((size = getline(&line, &len, file)) != -1)
     {
-        
+        ret = inst_return(&R, &I, line);
+        if (ret == 1)
+            res = R.funct + R.shamt * pow(2, 6) + R.rd * pow(2, 11) + R.rt * pow(2, 16) + R.rs * pow(2, 21) + R.opcode * pow(2, 26);
+        else if (ret == 2)
+            res = I.immediate + I.rt * pow(2, 16) + I.rs * pow(2, 21) + I.opcode * pow(2, 26);
+        fwrite(&res,1,sizeof(long unsigned int),result);
     }
 
     fclose(file);
+    fclose(result);
 }
 
 int main()

@@ -1,3 +1,3 @@
-lw F1 10
-lw F2 20
+lw F1 30 F2
+lw F4 10 F1
 add F3 F1 F2
