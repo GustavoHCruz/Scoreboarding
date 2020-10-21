@@ -12,44 +12,47 @@ enum registers
     F7 = 0b0111,
     F8 = 0b1000,
     F9 = 0b1001,
-    F10 = 0b1010,
-    F11 = 0b1011,
-    F12 = 0b1100,
-    F13 = 0b1101,
-    F14 = 0b1110,
-    F15 = 0b1111
 };
 
-struct inst_r{ //três formatos diferentes
-    int opcode;
-    int rs;
-    int rt;
-    int rd;
-    int shamt;
-    int funct;
-}inst_r;
+typedef struct Instruction_R
+{
+    unsigned int opcode : 6; // Always zero
+    unsigned int rs : 5;     // Destination register
+    unsigned int rt : 5;     // Origin register 1
+    unsigned int rd : 5;     // Origin register 2
+    unsigned int shamt : 5;  // Shift operator
+    unsigned int funct : 6;  // Specifies the operation
+} Instruction_R;
 
-struct memoria_registradores{
-    char nome;
-    int valor;
-}memoria_registradores;
+typedef struct Instruction_I
+{
+    unsigned int opcode : 6;     // Specifies the operation
+    unsigned int rs : 5;         // Destination register
+    unsigned int rt : 5;         // Origin register
+    unsigned int immediate : 16; // Immediate value
+} Instruction_I;
 
-typedef struct unidade_1{
+typedef struct instrConfig{
+    char * name;
+    int cicles;
+}instrConfig;
 
-}unidade_1;
+// typedef struct unidade_1{
+
+// }unidade_1;
 
 //uma struct para cada unidade?
 
-struct scoreboarding{
-    unidade_1 add1;
-    unidade_1 add2;
-};
+// typedef struct scoreboarding{
+//     unidade_1 add1;
+//     unidade_1 add2;
+// } scoreboarding;
 
-struct pipeline{
+// struct pipeline{
 
-}pipeline;
+// }pipeline;
 
-void ler_arquivo();
+
 
 void converter_arquivo();
 
@@ -57,13 +60,7 @@ void converter_arquivo();
 
 //decode
 
-//executa
-
-//escreve
-
-void executar();
-
-int main(int argc, char const *argv[])
+//executaCONFIG)
 {
     ler_arquivo();
     converter_arquivo();
