@@ -33,7 +33,7 @@ typedef struct Instruction_R // R instruction format
     unsigned int funct : 6;  // Specifies the operation
 } Instruction_R;
 
-typedef struct Instruction_I     // I instruction format
+typedef struct Instruction_I // I instruction format
 {
     unsigned int opcode : 6;     // Specifies the operation
     unsigned int rs : 5;         // Destination register
@@ -41,7 +41,7 @@ typedef struct Instruction_I     // I instruction format
     unsigned int immediate : 16; // Immediate value
 } Instruction_I;
 
-int register_map(char reg[2])   // Function to map the registers
+int register_map(char reg[2]) // Function to map the registers
 {
     if (strcmp(reg, "F0") == 0)
         return 0;
@@ -77,7 +77,7 @@ int register_map(char reg[2])   // Function to map the registers
         return 15;
 }
 
-int function_map(char *opcode)          // Function to map funct field (for R format)
+int function_map(char *opcode) // Function to map funct field (for R format)
 {
     if (strcmp(opcode, "add") == 0)
         return 32;
@@ -95,7 +95,7 @@ int function_map(char *opcode)          // Function to map funct field (for R fo
         return 26;
 }
 
-int opcode_map(char *opcode)            // Function to map opcode field (for I format)
+int opcode_map(char *opcode) // Function to map opcode field (for I format)
 {
     if (strcmp(opcode, "addi") == 0)
         return 8;
@@ -145,13 +145,13 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the line
         return 0;
 }
 
-int converter(char *fileName)   // It opens the files and treat the logic of the converter
+int converter(char *fileName) // It opens the files and treat the logic of the converter
 {
     size_t len = 100;
     size_t size;
-    FILE *file, *result;
+    FILE *file;
+    int instructionsCounter = 0;
     file = fopen(fileName, "r");
-    result = fopen("binary.txt", "wb");
 
     if (file == NULL)
         return 0;
@@ -160,28 +160,36 @@ int converter(char *fileName)   // It opens the files and treat the logic of the
 
     Instruction_R R;
     Instruction_I I;
-    long unsigned int res;
+    unsigned int res;
     int ret;
 
+    while ((size = getline(&line, &len, file)) != -1)
+    {
+        instructionsCounter++;
+    }
+
+    rewind(file);
+
+    printf("\n%i\n",instructionsCounter);
+
+    unsigned int instructionsMemory[instructionsCounter];
+
+    int i=0;
     while ((size = getline(&line, &len, file)) != -1)
     {
         ret = inst_return(&R, &I, line);
         if (ret == 1)
         {
             res = R.funct + R.shamt * pow(2, 6) + R.rd * pow(2, 11) + R.rt * pow(2, 16) + R.rs * pow(2, 21) + R.opcode * pow(2, 26);
-            printf("%i,%i,%i,%i,%i,%i - Numero 32 bits:%i\n", R.opcode, R.rs, R.rt, R.rd, R.shamt, R.funct, res);
         }
         else if (ret == 2)
         {
             res = I.immediate + I.rt * pow(2, 16) + I.rs * pow(2, 21) + I.opcode * pow(2, 26);
-            printf("%i,%i,%i,%i - Numero 32 bits:%lu\n", I.opcode, I.rs, I.rt, I.immediate, res);
         }
-
-        fwrite(&res, 1, sizeof(long unsigned int), result);
+        instructionsMemory[i] = res;
+        i++;
     }
-
     fclose(file);
-    fclose(result);
 }
 
 int main()

@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 typedef struct Instruction_R
 {
     unsigned int opcode : 6; // Always zero
