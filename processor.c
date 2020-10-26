@@ -61,6 +61,7 @@ void converter_arquivo();
 //decode
 
 //executaCONFIG)
+int main()
 {
     ler_arquivo();
     converter_arquivo();

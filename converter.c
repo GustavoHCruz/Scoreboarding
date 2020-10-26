@@ -170,8 +170,6 @@ int converter(char *fileName) // It opens the files and treat the logic of the c
 
     rewind(file);
 
-    printf("\n%i\n",instructionsCounter);
-
     unsigned int instructionsMemory[instructionsCounter];
 
     int i=0;
