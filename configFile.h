@@ -2,30 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct Instruction_R
-{
-    unsigned int opcode : 6; // Always zero
-    unsigned int rs : 5;     // Destination register
-    unsigned int rt : 5;     // Origin register 1
-    unsigned int rd : 5;     // Origin register 2
-    unsigned int shamt : 5;  // Shift operator
-    unsigned int funct : 6;  // Specifies the operation
-} Instruction_R;
-
-typedef struct Instruction_I
-{
-    unsigned int opcode : 6;     // Specifies the operation
-    unsigned int rs : 5;         // Destination register
-    unsigned int rt : 5;         // Origin register
-    unsigned int immediate : 16; // Immediate value
-} Instruction_I;
-
-typedef struct instrConfig
-{
-    int add, addi, and, andi, or, ori, lw, slt, sub, div, mult;
-} instrConfig;
-
-void initializeStruct(instrConfig *instructionConfig)
+void initializeStruct(InstConfig *instructionConfig)
 {
     instructionConfig->add = 0;
     instructionConfig->addi = 0;
@@ -40,7 +17,7 @@ void initializeStruct(instrConfig *instructionConfig)
     instructionConfig->mult = 0;
 }
 
-void inst_cicles(char *cicle, char *str, instrConfig *instructionsConfig)
+void inst_cicles(char *cicle, char *str, InstConfig *instructionsConfig)
 {
     char *instruction;
     instruction = strtok(str, " ");
@@ -73,12 +50,12 @@ void inst_cicles(char *cicle, char *str, instrConfig *instructionsConfig)
         instructionsConfig->mult = valueCicle;
 }
 
-void ler_arquivo()
+InstConfig readInstructionsConfig(char *configFileName)
 {
     FILE *config;
-    config = fopen("config.txt", "r");
+    config = fopen(configFileName, "r");
 
-    instrConfig instructionsConfig;
+    InstConfig instructionsConfig;
 
     char *cicleChar, *line = NULL;
 
@@ -91,10 +68,6 @@ void ler_arquivo()
 
     while ((size = getline(&line, &len, config)) != -1)
         inst_cicles(cicleChar, line, &instructionsConfig);
-}
 
-int main()
-{
-    ler_arquivo();
-    return 0;
+    return instructionsConfig;
 }

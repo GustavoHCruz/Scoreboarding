@@ -1,0 +1,11 @@
+add = 2
+sub = 2
+lw = 2
+and = 1
+andi = 2
+or = 1
+ori = 2
+addi = 4
+mult = 6
+div = 8
+slt = 2
