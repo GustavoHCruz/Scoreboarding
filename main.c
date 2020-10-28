@@ -7,10 +7,10 @@
 
 int main(int argc, char *argv[])
 {
-    int option;
+    int memoryLength, option;
     char *configFileName, *outputFileName, *programName;
 
-    while ((option = getopt(argc, argv, ":c:o:p:")) != -1)
+    while ((option = getopt(argc, argv, ":c:o:p:m:")) != -1)
     {
         switch (option)
         {
@@ -23,23 +23,23 @@ int main(int argc, char *argv[])
         case 'p':
             programName = optarg;
             break;
+        case 'm':
+            memoryLength = atoi(optarg);
+            break;
         default: // Invalid params
-            printf("Usage: -c <ConfigFileName> -o <OutputFileName> -p <ProgramName>\n");
+            printf("Usage Mode: -c <ConfigFileName> -o <OutputFileName> -p <ProgramName> -m <MemoryLength>\n");
         }
     }
-    int inst_amount = instructions_counter(programName);
-    unsigned int instructionsMemory[inst_amount];
-    converter(programName,instructionsMemory);
+    unsigned int instructionsMemory[memoryLength];
+    converter(programName, instructionsMemory);
     InstConfig instructionsConfig = readInstructionsConfig(configFileName);
 
-    /* printf("Teste da Memoria de Instrucoes\n");
-    for(int i=0;i<inst_amount;i++)
-        printf("M[%i]=%u\n",i,instructionsMemory[i]);
-    
-    printf("\nTeste da Configuracao das Instrucoes\n");
-    printf("add=%i\naddi=%i\nand=%i\nandi=%i\nor=%i\nori=%i\nlw=%i\nslt=%i\nsub=%i\ndiv=%i\nmult=%i\n",instructionsConfig.add,instructionsConfig.addi,instructionsConfig.and,instructionsConfig.andi,instructionsConfig.or,instructionsConfig.ori,instructionsConfig.lw,instructionsConfig.slt,instructionsConfig.sub,instructionsConfig.div,instructionsConfig.mult); */
+    printf("Teste da Memoria de Instrucoes\n");
+    for (int i = 0; i < memoryLength; i++)
+        printf("M[%i]=%u\n", i, instructionsMemory[i]);
 
-    
+    printf("\nTeste da Configuracao das Instrucoes\n");
+    printf("li=%i\namove=%i\nadd=%i\nandi=%i\nsub=%i\nor=%i\nori=%i\nand=%i\nandi=%i\nslt=%i\nmult=%i\ndiv=%i\n", instructionsConfig.li, instructionsConfig.move, instructionsConfig.add, instructionsConfig.addi, instructionsConfig.sub, instructionsConfig.or, instructionsConfig.ori, instructionsConfig.and, instructionsConfig.andi, instructionsConfig.slt, instructionsConfig.mult, instructionsConfig.div);
 
     return 0;
 }

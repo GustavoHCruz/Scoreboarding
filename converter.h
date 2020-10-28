@@ -10,7 +10,7 @@ int instructions_counter(char *fileName)
     size_t size;
     char *line = NULL;
     FILE *file;
-    file = fopen(fileName,"r");
+    file = fopen(fileName, "r");
 
     int instructionsCounter = 0;
 
@@ -24,36 +24,39 @@ int instructions_counter(char *fileName)
 
 int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the lines and map the parts of it into his respective format, returning it at end
 {
-    int i = 0;
+    int i = 1;
     char *token, *data[4];
 
     token = strtok(str, " ");
+    data[0] = token;
+    token = strtok(NULL, "");
+    token = strtok(token, ", ");
     while (token != NULL)
     {
         data[i] = token;
-        token = strtok(NULL, " ");
+        token = strtok(NULL, ", ");
         i++;
     }
 
     int temp = strlen(data[3]);
-    data[3][temp-1] = '\0';
+    data[3][temp - 1] = '\0';
 
-    if (strcmp(data[0], "add") == 0 || strcmp(data[0], "and") == 0 || strcmp(data[0], "or") == 0 || strcmp(data[0], "slt") == 0 || strcmp(data[0], "sub") == 0 || strcmp(data[0], "mult") == 0 || strcmp(data[0], "div") == 0)
+    if (strcmp(data[0], "add") == 0 || strcmp(data[0], "and") == 0 || strcmp(data[0], "or") == 0 || strcmp(data[0], "slt") == 0 || strcmp(data[0], "sub") == 0 || strcmp(data[0], "mult") == 0 || strcmp(data[0], "div") == 0 || strcmp(data[0], "move") == 0)
     {
         R->opcode = 0;
-        R->rs = register_map(data[1]);
-        R->rt = register_map(data[2]);
-        R->rd = register_map(data[3]);
+        R->rs = register_map(data[2]);
+        R->rt = register_map(data[3]);
+        R->rd = register_map(data[1]);
         R->shamt = 0;
         R->funct = function_map(data[0]);
         return 1;
     }
-    else if (strcmp(data[0], "addi") == 0 || strcmp(data[0], "andi") == 0 || strcmp(data[0], "ori") == 0 || strcmp(data[0], "lw") == 0)
+    else if (strcmp(data[0], "addi") == 0 || strcmp(data[0], "andi") == 0 || strcmp(data[0], "ori") == 0 || strcmp(data[0], "li") == 0)
     {
         I->opcode = opcode_map(data[0]);
-        I->rs = register_map(data[1]);
-        I->immediate = atoi(data[2]);
-        I->rt = register_map(data[3]);
+        I->rs = register_map(data[2]);
+        I->rt = register_map(data[1]);
+        I->immediate = atoi(data[3]);
         return 2;
     }
     else
