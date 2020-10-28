@@ -1,5 +1,5 @@
-li $s0, $s0, 30
-li $s1, $s1, 20
-move $s2, $s2, $s1
+li $s0, 30
+li $s1, 20
+move $s2, $s1
 add $s3, $s1, $s2
 addi $s4, $s3, 50
