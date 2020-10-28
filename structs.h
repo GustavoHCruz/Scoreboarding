@@ -36,7 +36,34 @@ enum registers
 
 enum units
 {
-    INT, MULT1, MULT2, DIV, ADD, SUB
+    INT,
+    MULT1,
+    MULT2,
+    DIV,
+    ADD,
+    SUB
+};
+
+enum instructionFormat
+{
+    R,
+    I
+};
+
+enum operations
+{
+    Move = 39,
+    Add = 32,
+    Sub = 34,
+    And = 36,
+    Or = 37,
+    Slt = 42,
+    Mult = 24,
+    Div = 26,
+    Li = 9,
+    Addi = 8,
+    Andi = 12,
+    Ori = 13
 };
 
 typedef struct Instruction_R // R instruction format
@@ -56,6 +83,47 @@ typedef struct Instruction_I // I instruction format
     unsigned int rt : 5;         // Destination register
     unsigned int immediate : 16; // Immediate value
 } Instruction_I;
+
+typedef struct FunctionUnity
+{
+    unsigned int busy : 1;
+    char *operation;
+    unsigned int fi : 5;
+    unsigned int fj : 5;
+    unsigned int fk : 5;
+    unsigned int qj : 3;
+    unsigned int qk : 3;
+    unsigned int rj : 1;
+    unsigned int rk : 1;
+} FunctionUnity;
+
+typedef struct Scoreboarding
+{
+    FunctionUnity FP_Mult1;
+    FunctionUnity FP_Mult2;
+    FunctionUnity FP_Div;
+    FunctionUnity FP_Add;
+    FunctionUnity Int_unit;
+} Scoreboarding;
+
+typedef struct Pipeline
+{
+    unsigned int issue;
+    unsigned int read;
+    unsigned int execute;
+    unsigned int write;
+
+} Pipeline;
+
+typedef struct Instruction
+{
+    unsigned int type : 1;
+    unsigned int operation : 6;
+    unsigned int operand1 : 5;
+    unsigned int operand2 : 5;
+    unsigned int operand3 : 16;
+    Pipeline pipeline;
+} Instruction;
 
 typedef struct InstConfig
 {

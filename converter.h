@@ -38,9 +38,17 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the line
         i++;
     }
 
-    int temp = strlen(data[3]);
-    if(i > 3)
-        data[3][temp - 1] = '\0';
+    int temp;
+    if (i > 3){
+        temp = strlen(data[3]);
+        if (data[3][temp - 1] == '\n')
+            data[3][temp-1] = '\0';
+    }
+    else{
+        temp = strlen(data[2]);
+        if (data[2][temp -1] == '\n')
+            data[2][temp - 1] = '\0';
+    }
 
     if (strcmp(data[0], "add") == 0 || strcmp(data[0], "and") == 0 || strcmp(data[0], "or") == 0 || strcmp(data[0], "slt") == 0 || strcmp(data[0], "sub") == 0 || strcmp(data[0], "mult") == 0 || strcmp(data[0], "div") == 0)
     {
@@ -60,16 +68,18 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the line
         I->immediate = atoi(data[3]);
         return 2;
     }
-    else if (strcmp(data[0], "move") == 0){
+    else if (strcmp(data[0], "move") == 0)
+    {
         R->opcode = 0;
         R->rd = register_map(data[1]);
         R->rs = register_map(data[2]);
-        R->rd = 0;
+        R->rt = 0;
         R->shamt = 0;
         R->funct = function_map(data[0]);
         return 1;
     }
-    else if (strcmp(data[0], "li") == 0){
+    else if (strcmp(data[0], "li") == 0)
+    {
         I->opcode = opcode_map(data[0]);
         I->rs = 0;
         I->rt = register_map(data[1]);

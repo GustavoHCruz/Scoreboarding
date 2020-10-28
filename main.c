@@ -4,6 +4,7 @@
 #include "structs.h"
 #include "converter.h"
 #include "configFile.h"
+#include "processor.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,6 +41,8 @@ int main(int argc, char *argv[])
 
     printf("\nTeste da Configuracao das Instrucoes\n");
     printf("li=%i\namove=%i\nadd=%i\nandi=%i\nsub=%i\nor=%i\nori=%i\nand=%i\nandi=%i\nslt=%i\nmult=%i\ndiv=%i\n", instructionsConfig.li, instructionsConfig.move, instructionsConfig.add, instructionsConfig.addi, instructionsConfig.sub, instructionsConfig.or, instructionsConfig.ori, instructionsConfig.and, instructionsConfig.andi, instructionsConfig.slt, instructionsConfig.mult, instructionsConfig.div);
+
+    processor(instructionsConfig,instructionsMemory,memoryLength);
 
     return 0;
 }
