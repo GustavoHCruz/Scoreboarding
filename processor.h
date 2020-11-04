@@ -41,203 +41,192 @@ Instruction readMemory(unsigned int inst)
     return temp;
 }
 
+int update_data_in_functional_units(FunctionUnity *functionUnity, char *nameOperation, Instruction instruction, RegisterMemory registerMemory[]) {
+    // VERIFICAR DEPENDENCIAS
+    // else {
 
-Intruction issue(unsigned int instructionsMemory, Scoreboarding *scoreboarding) {
+        stcpy(registerMemory[instruction.operand1], 
+        strcpy(functionUnity->operation, *nameOperation);
+        functionUnity->busy = 1;
+        if(instruction.type == R){
+
+            functionUnity->fi = instruction.operand1;
+            functionUnity->fj = instruction.operand2;
+            functionUnity->fk = instruction.operand3;
+        } else {
+            functionUnity->fi = instruction.operand1;
+            functionUnity-> fj = instruction.operand2;
+            functionUnity-> fk = NILL;
+        }
+}
+
+
+int issue(unsigned int instructionsMemory, Scoreboarding *scoreboarding, char *registerMemory[]) {
     Instruction instructionRead;
-    instrcutionRead = readMemory(instructionsMemory);
-    if(instrcutionRead.operation == Move) {
+    instructionRead = readMemory(instructionsMemory);
 
-        if(scoreboarding.Int_unit.busy == 0){
-            scoreboarding.Int_unit.busy = 1;
+    if(instructionRead.operation == Move) {
+        if(scoreboarding->Int_unit.busy == 0){            
+            update_data_in_functional_units(&scoreboarding->Int_unit, "move", instructionRead, registerMemory);
             return 1;
-        }
-               
+        }  
     } else if(instructionRead.operation == Add){
-
-        if(scoreboarding.FP_Add.busy == 0){
-            scoreboarding.FP_Add.busy = 1;
+        if(scoreboarding->FP_Add.busy == 0){
+            update_data_in_functional_units(&scoreboarding->FP_Add, "add", instructionRead, registerMemory);
             return 1;
-        }
-        
-            
+        }    
     } else if(instructionRead.operation == Sub){
-
-        if(scoreboarding.FP_Add.busy == 0){
-            scoreboarding.FP_Add.busy = 1;
+        if(scoreboarding->FP_Add.busy == 0){
+            update_data_in_functional_units(&scoreboarding->FP_Add, "sub", instructionRead, registerMemory);
+            return 1;
+        }            
+    } else if(instructionRead.operation == And) {
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "and", instructionRead, registerMemory);
+            return 1;
+        } 
+    } else if(instructionRead.operation == Or) {
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "or", instructionRead, registerMemory);
             return 1;
         }
-        
-            
-    } else if(instrcutionRead.operation == And) {
-
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
+    } else if(instructionRead.operation == Slt) {
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "slt", instructionRead, registerMemory);
             return 1;
         }
-        
-    } else if(instrcutionRead.operation == Or) {
-
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
+    } else if(instructionRead.operation == Mult) {  
+        if(scoreboarding->FP_Mult1.busy == 0){
+            update_data_in_functional_units(&scoreboarding->FP_Mult1, "mult", instructionRead, registerMemory);
+            return 1;
+        }     
+        else if(scoreboarding->FP_Mult2.busy == 0){
+            update_data_in_functional_units(&scoreboarding->FP_Mult2, "mult", instructionRead, registerMemory);
+            return 1;
+        }              
+    } else if(instructionRead.operation == Div) {
+        if(scoreboarding->FP_Div.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->FP_Div, "div", instructionRead, registerMemory);
+            return 1;
+        }        
+    } else if(instructionRead.operation == Li) {
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "li", instructionRead, registerMemory);
+            return 1;
+        }      
+    } else if(instructionRead.operation == Addi) {
+        if(scoreboarding->FP_Add.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->FP_Add, "addi", instructionRead, registerMemory);
+            return 1;
+        }      
+    } else if(instructionRead.operation == Andi) {
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "andi", instructionRead, registerMemory);
+            return 1;
+        }    
+    } else if(instructionRead.operation == Ori) { 
+        if(scoreboarding->Int_unit.busy == 0) {
+            update_data_in_functional_units(&scoreboarding->Int_unit, "ori", instructionRead, registerMemory);
             return 1;
         }
-        
-    } else if(instrcutionRead.operation == Slt) {
-        
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
-            return 1;
-        }
-
-    } else if(instrcutionRead.operation == Mult) {
-        
-        if(scoreboarding.FP_Mult1.busy == 0){
-            scoreboarding.FP_Mult1.busy = 1;
-            return 1;
-        }
-
-            
-        else if(scoreboarding.FP_Mult2.busy == 0){
-            scoreboarding.FP_Mult2.busy = 1;
-            return 1;
-        }
-        
-            
-    } else if(instrcutionRead.operation == Div) {
-
-        if(scoreboarding.FP_Div.busy == 0) {
-            scoreboarding.FP_Div.busy = 1;
-            return 1;
-        }
-
-            
-    } else if(instrcutionRead.operation == Li) {
-
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
-            return 1;
-        }
-        
-    } else if(instrcutionRead.operation == Addi) {
-
-        if(scoreboarding.FP_Add.busy == 0) {
-            scoreboarding.FP_Add.busy = 1;
-            return 1;
-        }
-
-            
-    } else if(instrcutionRead.operation == Andi) {
-
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
-            return 1;
-        }
-        
-    } else if(instrcutionRead.operation == Ori) {
-        
-        if(scoreboarding.Int_unit.busy == 0) {
-            scoreboarding.Int_unit.busy = 1;
-            return 1;
-        }
-        
-    } 
-
+    }
     return 0;
 }
 
-int write() {
-    if(instrcutionRead.operation == Move) {
+int write(Scoreboarding *scoreboarding) {
+    Instruction instructionRead;
+    if(instructionRead.operation == Move) {
 
-        if(scoreboarding.Int_unit.busy == 1){
-            scoreboarding.Int_unit.busy = 0;
+        if(scoreboarding->Int_unit.busy == 1){
+            scoreboarding->Int_unit.busy = 0;
 
         }
                
     } else if(instructionRead.operation == Add){
 
-        if(scoreboarding.FP_Add.busy == 1){
-            scoreboarding.FP_Add.busy = 0;
+        if(scoreboarding->FP_Add.busy == 1){
+            scoreboarding->FP_Add.busy = 0;
             
         }
         
             
     } else if(instructionRead.operation == Sub){
 
-        if(scoreboarding.FP_Add.busy == 1){
-            scoreboarding.FP_Add.busy = 0;
+        if(scoreboarding->FP_Add.busy == 1){
+            scoreboarding->FP_Add.busy = 0;
             
         }
         
             
-    } else if(instrcutionRead.operation == And) {
+    } else if(instructionRead.operation == And) {
 
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
             
         }
         
-    } else if(instrcutionRead.operation == Or) {
+    } else if(instructionRead.operation == Or) {
 
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
             
         }
         
-    } else if(instrcutionRead.operation == Slt) {
+    } else if(instructionRead.operation == Slt) {
         
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
             
         }
 
-    } else if(instrcutionRead.operation == Mult) {
+    } else if(instructionRead.operation == Mult) {
         
-        if(scoreboarding.FP_Mult1.busy == 1){
-            scoreboarding.FP_Mult1.busy = 0;
+        if(scoreboarding->FP_Mult1.busy == 1){
+            scoreboarding->FP_Mult1.busy = 0;
             
         }
 
             
-        else if(scoreboarding.FP_Mult2.busy == 1){
-            scoreboarding.FP_Mult2.busy = 0
-            
-        }
-        
-            
-    } else if(instrcutionRead.operation == Div) {
-
-        if(scoreboarding.FP_Div.busy == 1) {
-            scoreboarding.FP_Div.busy = 0;
-            
-        }
-
-            
-    } else if(instrcutionRead.operation == Li) {
-
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+        else if(scoreboarding->FP_Mult2.busy == 1){
+            scoreboarding->FP_Mult2.busy = 0
             
         }
         
-    } else if(instrcutionRead.operation == Addi) {
+            
+    } else if(instructionRead.operation == Div) {
 
-        if(scoreboarding.FP_Add.busy == 1) {
-            scoreboarding.FP_Add.busy = 0;
+        if(scoreboarding->FP_Div.busy == 1) {
+            scoreboarding->FP_Div.busy = 0;
             
         }
 
             
-    } else if(instrcutionRead.operation == Andi) {
+    } else if(instructionRead.operation == Li) {
 
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
             
         }
         
-    } else if(instrcutionRead.operation == Ori) {
+    } else if(instructionRead.operation == Addi) {
+
+        if(scoreboarding->FP_Add.busy == 1) {
+            scoreboarding->FP_Add.busy = 0;
+            
+        }
+
+            
+    } else if(instructionRead.operation == Andi) {
+
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
+            
+        }
         
-        if(scoreboarding.Int_unit.busy == 1) {
-            scoreboarding.Int_unit.busy = 0;
+    } else if(instructionRead.operation == Ori) {
+        
+        if(scoreboarding->Int_unit.busy == 1) {
+            scoreboarding->Int_unit.busy = 0;
             
         }
         
@@ -255,8 +244,7 @@ int scoreboarding(InstConfig instructionConfig, unsigned int instructionsMemory[
         write();
         execute();
         read();
-        
-        issue(instructionsMemory[i], &score);
+        issue(instructionsMemory[i], &scoreboarding, scoreboarding.registerTable);
     }
 
 

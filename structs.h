@@ -66,6 +66,8 @@ enum operations
     Ori = 13
 };
 
+#define NILL -1
+
 typedef struct Instruction_R // R instruction format
 {
     unsigned int opcode : 6; // Always zero
@@ -95,6 +97,7 @@ typedef struct FunctionUnity
     unsigned int qk : 3;
     unsigned int rj : 1;
     unsigned int rk : 1;
+    char * name;
 } FunctionUnity;
 
 typedef struct Scoreboarding
@@ -104,6 +107,7 @@ typedef struct Scoreboarding
     FunctionUnity FP_Div;
     FunctionUnity FP_Add;
     FunctionUnity Int_unit;
+    char *registerTable[32];
 } Scoreboarding;
 
 typedef struct Pipeline
