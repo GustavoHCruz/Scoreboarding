@@ -55,10 +55,15 @@ void initializeScoreboarding(Scoreboarding *scorebording)
     aux.rj = 0;
     aux.rk = 0;
     scorebording->FP_Add = aux;
+    scorebording->FP_Add.name = "Add";
     scorebording->FP_Div = aux;
+    scorebording->FP_Div.name = "Div";
     scorebording->FP_Mult1 = aux;
+    scorebording->FP_Mult1.name = "Mult1";
     scorebording->FP_Mult2 = aux;
+    scorebording->FP_Mult2.name = "Mult2";
     scorebording->Int_unit = aux;
+    scorebording->Int_unit.name = "Int";
 }
 
 int rawCheck(FunctionUnity functionUnity, unsigned int operand)
@@ -124,16 +129,11 @@ void initRegisterTable(Scoreboarding *scoreboarding) {
 
 int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity *functionUnity, char *nameOperation, Instruction instruction)
 {
-    printf("%s", scoreboarding->registerTable[instruction.operand1]);
-        printf("ENTOR AQUI");
-            printf("ENTOR AQUI");
-            int i;
-            scanf("%i", &i);
-            printf("ENTOR AQUI");
     if (!rawDependency(*scoreboarding, instruction))
     {
-        strcpy(scoreboarding->registerTable[instruction.operand1], functionUnity->name);
-        strcpy(functionUnity->operation, nameOperation);
+        scoreboarding->registerTable[instruction.operand1] = functionUnity->name;
+        functionUnity->operation = nameOperation;
+
         printf("%s", functionUnity->operation);
         functionUnity->busy = 1;
         if (instruction.type == R)
@@ -146,7 +146,7 @@ int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity 
         {
             functionUnity->fi = instruction.operand1;
             functionUnity->fj = instruction.operand2;
-            functionUnity->fk = NILL;
+            functionUnity->fk = 0;
         }
         return 1;
     }
@@ -377,7 +377,7 @@ int scoreboardingFunction(InstConfig instructionConfig, unsigned int instruction
     initializeScoreboarding(&scoreboarding);
     initRegisterTable(&scoreboarding);
     int i = 0;
-    while (i < 2)
+    while (i < 5)
     {
         // clock++;
         // write();
@@ -386,18 +386,18 @@ int scoreboardingFunction(InstConfig instructionConfig, unsigned int instruction
         // execute();
         // read();
         if (issue(instructionRead, &scoreboarding, scoreboarding.registerTable))
-            //     pc++;
+                pc++;
 
-            printf("FP_Mult1%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Mult1.busy, scoreboarding.FP_Mult1.operation, scoreboarding.FP_Mult1.fi, scoreboarding.FP_Mult1.fj,
-                   scoreboarding.FP_Mult1.fk, scoreboarding.FP_Mult1.qj, scoreboarding.FP_Mult1.qk, scoreboarding.FP_Mult1.rj, scoreboarding.FP_Mult1.rk, scoreboarding.FP_Mult1.name);
-        // printf("FP_Mult2%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Mult2.busy,scoreboarding.FP_Mult2.operation, scoreboarding.FP_Mult2.fi, scoreboarding.FP_Mult2.fj,
-        //     scoreboarding.FP_Mult2.fk,scoreboarding.FP_Mult2.qj, scoreboarding.FP_Mult2.qk, scoreboarding.FP_Mult2.rj, scoreboarding.FP_Mult2.rk, scoreboarding.FP_Mult2.name);
-        // printf("FP_Div%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Div.busy,scoreboarding.FP_Div.operation, scoreboarding.FP_Div.fi, scoreboarding.FP_Div.fj,
-        //     scoreboarding.FP_Div.fk,scoreboarding.FP_Div.qj, scoreboarding.FP_Div.qk, scoreboarding.FP_Div.rj, scoreboarding.FP_Div.rk, scoreboarding.FP_Div.name);
-        // printf("FP_Add%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Add.busy,scoreboarding.FP_Add.operation, scoreboarding.FP_Add.fi, scoreboarding.FP_Add.fj,
-        //     scoreboarding.FP_Add.fk,scoreboarding.FP_Add.qj, scoreboarding.FP_Add.qk, scoreboarding.FP_Add.rj, scoreboarding.FP_Add.rk, scoreboarding.FP_Add.name);
-        // printf("Int_unit%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.Int_unit.busy,scoreboarding.Int_unit.operation, scoreboarding.Int_unit.fi, scoreboarding.Int_unit.fj,
-        //     scoreboarding.Int_unit.fk,scoreboarding.Int_unit.qj, scoreboarding.Int_unit.qk, scoreboarding.Int_unit.rj, scoreboarding.Int_unit.rk, scoreboarding.Int_unit.name);
+        printf("FP_Mult1\n%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Mult1.busy, scoreboarding.FP_Mult1.operation, scoreboarding.FP_Mult1.fi, scoreboarding.FP_Mult1.fj,
+            scoreboarding.FP_Mult1.fk, scoreboarding.FP_Mult1.qj, scoreboarding.FP_Mult1.qk, scoreboarding.FP_Mult1.rj, scoreboarding.FP_Mult1.rk, scoreboarding.FP_Mult1.name);
+        printf("FP_Mult2\n%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Mult2.busy,scoreboarding.FP_Mult2.operation, scoreboarding.FP_Mult2.fi, scoreboarding.FP_Mult2.fj,
+            scoreboarding.FP_Mult2.fk,scoreboarding.FP_Mult2.qj, scoreboarding.FP_Mult2.qk, scoreboarding.FP_Mult2.rj, scoreboarding.FP_Mult2.rk, scoreboarding.FP_Mult2.name);
+        printf("FP_Div%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Div.busy,scoreboarding.FP_Div.operation, scoreboarding.FP_Div.fi, scoreboarding.FP_Div.fj,
+            scoreboarding.FP_Div.fk,scoreboarding.FP_Div.qj, scoreboarding.FP_Div.qk, scoreboarding.FP_Div.rj, scoreboarding.FP_Div.rk, scoreboarding.FP_Div.name);
+        printf("FP_Add%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Add.busy,scoreboarding.FP_Add.operation, scoreboarding.FP_Add.fi, scoreboarding.FP_Add.fj,
+            scoreboarding.FP_Add.fk,scoreboarding.FP_Add.qj, scoreboarding.FP_Add.qk, scoreboarding.FP_Add.rj, scoreboarding.FP_Add.rk, scoreboarding.FP_Add.name);
+        printf("Int_unit%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.Int_unit.busy,scoreboarding.Int_unit.operation, scoreboarding.Int_unit.fi, scoreboarding.Int_unit.fj,
+            scoreboarding.Int_unit.fk ,scoreboarding.Int_unit.qj, scoreboarding.Int_unit.qk, scoreboarding.Int_unit.rj, scoreboarding.Int_unit.rk, scoreboarding.Int_unit.name);
         i++;
     }
 }
