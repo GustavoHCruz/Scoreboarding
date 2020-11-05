@@ -1,4 +1,4 @@
-mult $s0, $s1, $s2
-li $s0, 30
+mult $s1, $s0, $s2
+li $s2, 30
 add $s3, $s5, $s2
-div $s4, $s3, $s6
+div $s3, $s3, $s6

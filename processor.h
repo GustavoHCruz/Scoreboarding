@@ -73,12 +73,18 @@ int rawCheck(FunctionUnity functionUnity, unsigned int operand)
     return 0;
 }
 
-int warCheck()
+int warCheck(FunctionUnity functinoUnity, unsigned int operand)
 {
+    if((functinoUnity.fj == operand && functinoUnity.fj != 0 ) || (functinoUnity.fk == operand && functinoUnity.fk != 0)) 
+        return 1;
+    return 0;
 }
 
-int wawCheck()
+int wawCheck(FunctionUnity functionUnity, unsigned int operand)
 {
+    if (functionUnity.fi == operand)
+        return 1;
+    return 0;
 }
 
 int rawDependency(Scoreboarding scoreboarding, Instruction instruction)
@@ -110,15 +116,65 @@ int rawDependency(Scoreboarding scoreboarding, Instruction instruction)
     return 0;
 }
 
-// int warDependecy(Scoreboarding scoreboarding, Instruction instruction)
-// {
+int warDependency(Scoreboarding scoreboarding, Instruction instruction)
+{
+    if(instruction.operation != Li){    
+        if (warCheck(scoreboarding.FP_Add, instruction.operand1))
+            return 1;
+        if (warCheck(scoreboarding.FP_Div, instruction.operand1))
+            return 1;
+        if (warCheck(scoreboarding.FP_Mult1, instruction.operand1))
+            return 1;
+        if (warCheck(scoreboarding.FP_Mult2, instruction.operand1))
+            return 1;
+        if (warCheck(scoreboarding.Int_unit, instruction.operand1))
+            return 1;
+    } else {
+        if (warCheck(scoreboarding.Int_unit, instruction.operand2))
+            return 1;
+        if (warCheck(scoreboarding.FP_Add, instruction.operand2))
+            return 1;
+        if (warCheck(scoreboarding.FP_Div, instruction.operand2))
+            return 1;
+        if (warCheck(scoreboarding.FP_Mult1, instruction.operand2))
+            return 1;
+        if (warCheck(scoreboarding.FP_Mult2, instruction.operand2))
+            return 1;
+        if (warCheck(scoreboarding.Int_unit, instruction.operand2))
+            return 1;
+    }
+    return 0;
+}
 
-// }
-
-// int wawDependency(Scoreboarding scoreboarding, Instruction instruction)
-// {
-
-// }
+int wawDependency(Scoreboarding scoreboarding, Instruction instruction)
+{
+     if(instruction.operation != Li){    
+        if (wawCheck(scoreboarding.FP_Add, instruction.operand1))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Div, instruction.operand1))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Mult1, instruction.operand1))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Mult2, instruction.operand1))
+            return 1;
+        if (wawCheck(scoreboarding.Int_unit, instruction.operand1))
+            return 1;
+    } else {
+        if (wawCheck(scoreboarding.Int_unit, instruction.operand2))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Add, instruction.operand2))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Div, instruction.operand2))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Mult1, instruction.operand2))
+            return 1;
+        if (wawCheck(scoreboarding.FP_Mult2, instruction.operand2))
+            return 1;
+        if (wawCheck(scoreboarding.Int_unit, instruction.operand2))
+            return 1;
+    }
+    return 0;
+}
 
 void initRegisterTable(Scoreboarding *scoreboarding) {
     for (int i = 0; i < 32; i ++) {
@@ -128,45 +184,41 @@ void initRegisterTable(Scoreboarding *scoreboarding) {
 
 int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity *functionUnity, char *nameOperation, Instruction instruction)
 {
-    if (!rawDependency(*scoreboarding, instruction))
-    {
-        scoreboarding->registerTable[instruction.operand1] = functionUnity->name;
-        functionUnity->operation = nameOperation;
+    scoreboarding->registerTable[instruction.operand1] = functionUnity->name;
+    functionUnity->operation = nameOperation;
 
-        printf("%s", functionUnity->operation);
-        functionUnity->busy = 1;
-        if (instruction.type == R)
-        {
-            if(instruction.operation == Move){
-                functionUnity->fi = instruction.operand1;
-                functionUnity->fj = instruction.operand2;
-                functionUnity->fk = 0;
-            } else {
-                functionUnity->fi = instruction.operand1;
-                functionUnity->fj = instruction.operand2;
-                functionUnity->fk = instruction.operand3;
-            }
+    printf("%s", functionUnity->operation);
+    functionUnity->busy = 1;
+    if (instruction.type == R)
+    {
+        if(instruction.operation == Move){
+            functionUnity->fi = instruction.operand1;
+            functionUnity->fj = instruction.operand2;
+            functionUnity->fk = 0;
+        } else {
+            functionUnity->fi = instruction.operand1;
+            functionUnity->fj = instruction.operand2;
+            functionUnity->fk = instruction.operand3;
         }
-        else
-        {
-            if(instruction.operation == Li)  {
-                functionUnity->fi = instruction.operand2;
-                functionUnity->fj = 0;
-                functionUnity->fk = 0;
-            } else {
-                functionUnity->fi = instruction.operand1;
-                functionUnity->fj = instruction.operand2;
-                functionUnity->fk = 0;
-            }
-        }
-        return 1;
     }
-    return 0;
+    else
+    {
+        if(instruction.operation == Li)  {
+            functionUnity->fi = instruction.operand2;
+            functionUnity->fj = 0;
+            functionUnity->fk = 0;
+        } else {
+            functionUnity->fi = instruction.operand1;
+            functionUnity->fj = instruction.operand2;
+            functionUnity->fk = 0;
+        }
+    }
+    return 1;
 }
 
 int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *registerMemory[])
 {
-
+    if(!wawDependency(*scoreboarding, instructionsMemory))
     if (instructionsMemory.operation == Move)
     {
         if (scoreboarding->Int_unit.busy == 0)
