@@ -16,10 +16,10 @@ Instruction readMemory(unsigned int inst)
     if (inst > 67108863)
     {
         temp.type = I;
-        temp.operand3 = convertTo(&inst, 16);
-        temp.operand2 = convertTo(&inst, 5);
-        temp.operand1 = convertTo(&inst, 5);
-        temp.operation = convertTo(&inst, 6);
+        temp.operand3 = convertTo(&inst, 16);   //IMMEDIATE c
+        temp.operand2 = convertTo(&inst, 5);    //RT -> DESTINO
+        temp.operand1 = convertTo(&inst, 5);    //RS -> ORIGIN REGISTER SE FOR DE 3 INSTRUCAO
+        temp.operation = convertTo(&inst, 6);   //OPCODE
         temp.pipeline.issue = 0;
         temp.pipeline.read = 0;
         temp.pipeline.execute = 0;
@@ -83,31 +83,30 @@ int wawCheck()
 
 int rawDependency(Scoreboarding scoreboarding, Instruction instruction)
 {
-    if (rawCheck(scoreboarding.FP_Add, instruction.operand2))
-        return 1;
-    if (instruction.type == R)
-        if (rawCheck(scoreboarding.FP_Add, instruction.operand3))
+    if(instruction.operation != Li){    
+        if (rawCheck(scoreboarding.FP_Add, instruction.operand2))
             return 1;
-    if (rawCheck(scoreboarding.FP_Div, instruction.operand2))
-        return 1;
-    if (instruction.type == R)
-        if (rawCheck(scoreboarding.FP_Div, instruction.operand3))
+        if (rawCheck(scoreboarding.FP_Div, instruction.operand2))
             return 1;
-    if (rawCheck(scoreboarding.FP_Mult1, instruction.operand2))
-        return 1;
-    if (instruction.type == R)
-        if (rawCheck(scoreboarding.FP_Mult1, instruction.operand3))
+        if (rawCheck(scoreboarding.FP_Mult1, instruction.operand2))
             return 1;
-    if (rawCheck(scoreboarding.FP_Mult2, instruction.operand2))
-        return 1;
-    if (instruction.type == R)
-        if (rawCheck(scoreboarding.FP_Mult2, instruction.operand3))
+        if (rawCheck(scoreboarding.FP_Mult2, instruction.operand2))
             return 1;
-    if (rawCheck(scoreboarding.Int_unit, instruction.operand2))
-        return 1;
-    if (instruction.type == R)
-        if (rawCheck(scoreboarding.Int_unit, instruction.operand3))
+        if (rawCheck(scoreboarding.Int_unit, instruction.operand2))
             return 1;
+        if(instruction.type == R) {
+            if (rawCheck(scoreboarding.FP_Add, instruction.operand3))
+                return 1;
+            if (rawCheck(scoreboarding.FP_Div, instruction.operand3))
+                return 1;
+            if (rawCheck(scoreboarding.FP_Mult1, instruction.operand3))
+                return 1;
+            if (rawCheck(scoreboarding.FP_Mult2, instruction.operand3))
+                return 1;
+            if (rawCheck(scoreboarding.Int_unit, instruction.operand3))
+            return 1;
+        }
+    }
     return 0;
 }
 
@@ -138,15 +137,27 @@ int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity 
         functionUnity->busy = 1;
         if (instruction.type == R)
         {
-            functionUnity->fi = instruction.operand1;
-            functionUnity->fj = instruction.operand2;
-            functionUnity->fk = instruction.operand3;
+            if(instruction.operation == Move){
+                functionUnity->fi = instruction.operand1;
+                functionUnity->fj = instruction.operand2;
+                functionUnity->fk = 0;
+            } else {
+                functionUnity->fi = instruction.operand1;
+                functionUnity->fj = instruction.operand2;
+                functionUnity->fk = instruction.operand3;
+            }
         }
         else
         {
-            functionUnity->fi = instruction.operand1;
-            functionUnity->fj = instruction.operand2;
-            functionUnity->fk = 0;
+            if(instruction.operation == Li)  {
+                functionUnity->fi = instruction.operand2;
+                functionUnity->fj = 0;
+                functionUnity->fk = 0;
+            } else {
+                functionUnity->fi = instruction.operand1;
+                functionUnity->fj = instruction.operand2;
+                functionUnity->fk = 0;
+            }
         }
         return 1;
     }
@@ -385,6 +396,8 @@ int scoreboardingFunction(InstConfig instructionConfig, unsigned int instruction
         // printf("%i\n", instructionRead.operation);
         // execute();
         // read();
+        
+        printf("AOPAJKSPOFAPSODFJASPODPAK\n\n\n\n\n\n");
         if (issue(instructionRead, &scoreboarding, scoreboarding.registerTable))
                 pc++;
 
