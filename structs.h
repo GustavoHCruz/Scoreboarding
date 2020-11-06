@@ -115,7 +115,6 @@ typedef struct Pipeline
     unsigned int read;
     unsigned int execute;
     unsigned int write;
-
 } Pipeline;
 
 typedef struct Instruction
@@ -136,6 +135,6 @@ typedef struct InstConfig
 typedef struct RegisterMemory
 {
     int value;
-    int busy : 2; // -1 -> Using on Write operation, 0 -> Not using, 1 -> Using on Read operation
+    int busy : 2; // -1 -> Using on Write operation, 0 -> Not using
     char *functionalUnityName;
 } RegisterMemory;
