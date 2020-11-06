@@ -184,17 +184,18 @@ int wawDependency(Scoreboarding scoreboarding, Instruction instruction)
     return 0;
 }
 
-void initRegisterTable(Scoreboarding *scoreboarding)
+void initRegisterTable(RegisterMemory *registerMemory[])
 {
     for (int i = 0; i < 32; i++)
     {
-        scoreboarding->registerTable[i] = " ";
+        registerMemory[i]->functionalUnityName = " ";
     }
 }
 
-int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity *functionUnity, char *nameOperation, Instruction instruction)
+int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity *functionUnity, char *nameOperation, Instruction instruction, RegisterMemory *registerMemory)
 {
-    scoreboarding->registerTable[instruction.operand1] = functionUnity->name;
+    registerMemory->functionalUnityName = functionUnity->name;
+    // registerMemory->value = 
     functionUnity->operation = nameOperation;
 
     printf("%s", functionUnity->operation);
@@ -232,14 +233,14 @@ int update_data_in_functional_units(Scoreboarding *scoreboarding, FunctionUnity 
     return 1;
 }
 
-int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *registerMemory[])
+int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, RegisterMemory *registerMemory)
 {
     if (!wawDependency(*scoreboarding, instructionsMemory))
         if (instructionsMemory.operation == Move)
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "move", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "move", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -247,7 +248,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->FP_Add.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "add", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "add", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -255,7 +256,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->FP_Add.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "sub", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "sub", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -263,7 +264,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "and", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "and", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -271,7 +272,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "or", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "or", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -279,7 +280,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "slt", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "slt", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -288,7 +289,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
 
             if (scoreboarding->FP_Mult1.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Mult1, "mult", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Mult1, "mult", instructionsMemory, registerMemory))
                 {
 
                     return 1;
@@ -296,7 +297,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
             }
             else if (scoreboarding->FP_Mult2.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Mult2, "mult", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Mult2, "mult", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -304,7 +305,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->FP_Div.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Div, "div", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Div, "div", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -312,7 +313,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "li", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "li", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -320,7 +321,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->FP_Add.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "addi", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->FP_Add, "addi", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -328,7 +329,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "andi", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "andi", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -336,7 +337,7 @@ int issue(Instruction instructionsMemory, Scoreboarding *scoreboarding, char *re
         {
             if (scoreboarding->Int_unit.busy == 0)
             {
-                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "ori", instructionsMemory))
+                if (update_data_in_functional_units(scoreboarding, &scoreboarding->Int_unit, "ori", instructionsMemory, registerMemory))
                     return 1;
             }
         }
@@ -489,8 +490,9 @@ int scoreboardingFunction(InstConfig instructionConfig, unsigned int instruction
     int clock = 0, pc = 0;
     Instruction instructionRead;
     Scoreboarding scoreboarding;
+    RegisterMemory registerMemory[32];
     initializeScoreboarding(&scoreboarding);
-    initRegisterTable(&scoreboarding);
+    initRegisterTable(&registerMemory);
     int i = 0;
     while (i < 5)
     {
@@ -502,7 +504,7 @@ int scoreboardingFunction(InstConfig instructionConfig, unsigned int instruction
         // read();
 
         printf("AOPAJKSPOFAPSODFJASPODPAK\n\n\n\n\n\n");
-        if (issue(instructionRead, &scoreboarding, scoreboarding.registerTable))
+        if (issue(instructionRead, &scoreboarding, &registerMemory[pc]))
             pc++;
 
         printf("FP_Mult1\n%i\n%s\n%i\n%i\n%i\n%i\n%i\n%i\n%i\n%s\n", scoreboarding.FP_Mult1.busy, scoreboarding.FP_Mult1.operation, scoreboarding.FP_Mult1.fi, scoreboarding.FP_Mult1.fj,
