@@ -32,79 +32,42 @@ Instruction readMemory(unsigned int inst)
     if (inst > 67108863)
     {
         temp.type = I;
-        temp.operand3 = convertTo(&inst, 16);
-        temp.operand2 = convertTo(&inst, 5);
-        temp.operand1 = convertTo(&inst, 5);
+        temp.operand3 = convertTo(&inst, 16);   // Immediate
+        temp.operand2 = convertTo(&inst, 5);    // Origin 1
+        temp.operand1 = convertTo(&inst, 5);    // Destination
         temp.operation = convertTo(&inst, 6);
     }
     else
     {
         temp.type = R;
-        temp.operation = convertTo(&inst, 6);
+        temp.operation = convertTo(&inst, 6);   
         convertTo(&inst, 5);
-        temp.operand1 = convertTo(&inst, 5);
-        temp.operand3 = convertTo(&inst, 5);
-        temp.operand2 = convertTo(&inst, 5);
+        temp.operand1 = convertTo(&inst, 5);    // Destination
+        temp.operand3 = convertTo(&inst, 5);    // Origin 2
+        temp.operand2 = convertTo(&inst, 5);    // Origin 1
     }
     return temp;
 }
 
 void initialize()
 {
-    scoreboarding.FP_Mult1.name = MULT1;
-    scoreboarding.FP_Mult1.busy = false;
-    scoreboarding.FP_Mult1.operation = '\0';
-    scoreboarding.FP_Mult1.fi = 0;
-    scoreboarding.FP_Mult1.fj = 0;
-    scoreboarding.FP_Mult1.fk = 0;
-    scoreboarding.FP_Mult1.qj = 0;
-    scoreboarding.FP_Mult1.qk = 0;
-    scoreboarding.FP_Mult1.rj = 0;
-    scoreboarding.FP_Mult1.rk = 0;
-    scoreboarding.FP_Mult2.name = MULT2;
-    scoreboarding.FP_Mult2.busy = false;
-    scoreboarding.FP_Mult2.operation = '\0';
-    scoreboarding.FP_Mult2.fi = 0;
-    scoreboarding.FP_Mult2.fj = 0;
-    scoreboarding.FP_Mult2.fk = 0;
-    scoreboarding.FP_Mult2.qj = 0;
-    scoreboarding.FP_Mult2.qk = 0;
-    scoreboarding.FP_Mult2.rj = 0;
-    scoreboarding.FP_Mult2.rk = 0;
-    scoreboarding.FP_Div.name = DIV;
-    scoreboarding.FP_Div.busy = false;
-    scoreboarding.FP_Div.operation = '\0';
-    scoreboarding.FP_Div.fi = 0;
-    scoreboarding.FP_Div.fj = 0;
-    scoreboarding.FP_Div.fk = 0;
-    scoreboarding.FP_Div.qj = 0;
-    scoreboarding.FP_Div.qk = 0;
-    scoreboarding.FP_Div.rj = 0;
-    scoreboarding.FP_Div.rk = 0;
-    scoreboarding.FP_Add.name = ADD;
-    scoreboarding.FP_Add.busy = false;
-    scoreboarding.FP_Add.operation = '\0';
-    scoreboarding.FP_Add.fi = 0;
-    scoreboarding.FP_Add.fj = 0;
-    scoreboarding.FP_Add.fk = 0;
-    scoreboarding.FP_Add.qj = 0;
-    scoreboarding.FP_Add.qk = 0;
-    scoreboarding.FP_Add.rj = 0;
-    scoreboarding.FP_Add.rk = 0;
-    scoreboarding.Int_unit.name = INT;
-    scoreboarding.Int_unit.busy = false;
-    scoreboarding.Int_unit.operation = '\0';
-    scoreboarding.Int_unit.fi = 0;
-    scoreboarding.Int_unit.fj = 0;
-    scoreboarding.Int_unit.fk = 0;
-    scoreboarding.Int_unit.qj = 0;
-    scoreboarding.Int_unit.qk = 0;
-    scoreboarding.Int_unit.rj = 0;
-    scoreboarding.Int_unit.rk = 0;
+    for (int i = 0; i < units_n; i++)
+    {
+        scoreboarding.FUs[i].name = i;
+        scoreboarding.FUs[i].busy = false;
+        scoreboarding.FUs[i].operation = '\0';
+        scoreboarding.FUs[i].fi = 0;
+        scoreboarding.FUs[i].fj = 0;
+        scoreboarding.FUs[i].fk = 0;
+        scoreboarding.FUs[i].qj = NILL;
+        scoreboarding.FUs[i].qk = NILL;
+        scoreboarding.FUs[i].rj = NILL;
+        scoreboarding.FUs[i].rk = NILL;
+    }
     for (size_t i = 0; i < 32; i++)
     {
-        registerMemory->FU = NILL;
-        registerMemory->value = NILL;
+        registerMemory[i].FU = NILL;
+        registerMemory[i].value = NILL;
     }
 }
 
@@ -133,19 +96,13 @@ bool rawDependency()
 {
     if (instructions[pc].operation != Li)
     {
-        return (rawCheck(scoreboarding.FP_Add, instructions[pc].operand2));
-        return (rawCheck(scoreboarding.FP_Div, instructions[pc].operand2));
-        return (rawCheck(scoreboarding.FP_Mult1, instructions[pc].operand2));
-        return (rawCheck(scoreboarding.FP_Mult2, instructions[pc].operand2));
-        return (rawCheck(scoreboarding.Int_unit, instructions[pc].operand2));
+        if ((rawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
+            return true;
 
         if (instructions[pc].type == R)
         {
-            return (rawCheck(scoreboarding.FP_Add, instructions[pc].operand3));
-            return (rawCheck(scoreboarding.FP_Div, instructions[pc].operand3));
-            return (rawCheck(scoreboarding.FP_Mult1, instructions[pc].operand3));
-            return (rawCheck(scoreboarding.FP_Mult2, instructions[pc].operand3));
-            return (rawCheck(scoreboarding.Int_unit, instructions[pc].operand3));
+            if ((rawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[DIV], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[ADD], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[LOG], instructions[pc].operand3)))
+                return true;
         }
     }
     return false;
@@ -155,20 +112,13 @@ bool warDependency()
 {
     if (instructions[pc].operation != Li)
     {
-        return (warCheck(scoreboarding.FP_Add, instructions[pc].operand1));
-        return (warCheck(scoreboarding.FP_Div, instructions[pc].operand1));
-        return (warCheck(scoreboarding.FP_Mult1, instructions[pc].operand1));
-        return (warCheck(scoreboarding.FP_Mult2, instructions[pc].operand1));
-        return (warCheck(scoreboarding.Int_unit, instructions[pc].operand1));
+        if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
+            return true;
     }
     else
     {
-        return (warCheck(scoreboarding.Int_unit, instructions[pc].operand2));
-        return (warCheck(scoreboarding.FP_Add, instructions[pc].operand2));
-        return (warCheck(scoreboarding.FP_Div, instructions[pc].operand2));
-        return (warCheck(scoreboarding.FP_Mult1, instructions[pc].operand2));
-        return (warCheck(scoreboarding.FP_Mult2, instructions[pc].operand2));
-        return (warCheck(scoreboarding.Int_unit, instructions[pc].operand2));
+        if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
+            return true;
     }
     return false;
 }
@@ -177,20 +127,13 @@ bool wawDependency()
 {
     if (instructions[pc].operation != Li)
     {
-        return (wawCheck(scoreboarding.FP_Add, instructions[pc].operand1));
-        return (wawCheck(scoreboarding.FP_Div, instructions[pc].operand1));
-        return (wawCheck(scoreboarding.FP_Mult1, instructions[pc].operand1));
-        return (wawCheck(scoreboarding.FP_Mult2, instructions[pc].operand1));
-        return (wawCheck(scoreboarding.Int_unit, instructions[pc].operand1));
+        if ((wawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
+            return true;
     }
     else
     {
-        return (wawCheck(scoreboarding.Int_unit, instructions[pc].operand2));
-        return (wawCheck(scoreboarding.FP_Add, instructions[pc].operand2));
-        return (wawCheck(scoreboarding.FP_Div, instructions[pc].operand2));
-        return (wawCheck(scoreboarding.FP_Mult1, instructions[pc].operand2));
-        return (wawCheck(scoreboarding.FP_Mult2, instructions[pc].operand2));
-        return (wawCheck(scoreboarding.Int_unit, instructions[pc].operand2));
+        if ((wawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
+            return true;
     }
     return false;
 }
@@ -198,64 +141,83 @@ bool wawDependency()
 bool update_issue(FunctionUnity *functionUnity, char *nameOperation)
 {
     instructions[pc].pipeline.issue = clock;
-
     functionUnity->operation = nameOperation;
-
     functionUnity->busy = true;
 
-    if (registerMemory[instructions[pc].operand2].FU == NILL)
-    {
-        functionUnity->rj = true;
-        functionUnity->qj = functionUnity->name;
-    }
-    else
-    {
-        functionUnity->rj = false;
-    }
+    functionUnity->fi = instructions[pc].operand1;
 
-    if (instructions[pc].type == R)
-    {
-        registerMemory[instructions[pc].operand1].FU = functionUnity->name;
-        if (registerMemory[instructions[pc].operand3].FU == NILL)
-        {
-            functionUnity->rk = true;
-            functionUnity->qk = functionUnity->name;
-        }
-        else
-        {
-            functionUnity->rk = false;
-        }
-
-        if (instructions[pc].operation == Move)
-        {
-            functionUnity->fi = instructions[pc].operand1;
-            functionUnity->fj = instructions[pc].operand2;
-            functionUnity->fk = 0;
-        }
-        else
-        {
-            functionUnity->fi = instructions[pc].operand1;
-            functionUnity->fj = instructions[pc].operand2;
-            functionUnity->fk = instructions[pc].operand3;
-        }
-    }
-    else
+    registerMemory[instructions[pc].operand1].FU = functionUnity->name;
+    if (instructions[pc].type == I)
     {
         if (instructions[pc].operation == Li)
         {
-            registerMemory[instructions[pc].operand2].FU = functionUnity->name;
-            functionUnity->fi = instructions[pc].operand2;
             functionUnity->fj = 0;
             functionUnity->fk = 0;
+            functionUnity->qj = NILL;
+            functionUnity->qk = NILL;
+            functionUnity->rj = NILL;
+            functionUnity->rk = NILL;
         }
         else
         {
-            registerMemory[instructions[pc].operand1].FU = functionUnity->name;
-            functionUnity->fi = instructions[pc].operand1;
             functionUnity->fj = instructions[pc].operand2;
             functionUnity->fk = 0;
+            functionUnity->qk = NILL;
+            functionUnity->rk = NILL;
+            if (registerMemory[instructions[pc].operand2].FU == NILL)
+            {
+                functionUnity->qj = NILL;
+                functionUnity->rj = 1;
+            }
+            else {
+                functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
+                functionUnity->rj = 0;
+            }
         }
     }
+    else
+    {
+        if (instructions[pc].operation == Move)
+        {
+            functionUnity->fj = instructions[pc].operand2;
+            functionUnity->fk = 0;
+            functionUnity->qk = NILL;
+            functionUnity->rk = NILL;
+            if(registerMemory[instructions[pc].operand2].FU == NILL)
+            {
+                functionUnity->qj = NILL;
+                functionUnity->rj = 1;
+            }
+            else {
+                functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
+                functionUnity->rj = 0;
+            }
+        }
+        else
+        {
+            functionUnity->fj = instructions[pc].operand2;
+            functionUnity->fk = instructions[pc].operand3;
+            if(registerMemory[instructions[pc].operand2].FU == NILL)
+            {
+                functionUnity->qj = NILL;
+                functionUnity->rj = 1;
+            }
+            else {
+                functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
+                functionUnity->rj = 0;
+            }
+            if(registerMemory[instructions[pc].operand3].FU == NILL)
+            {
+                functionUnity->qk = NILL;
+                functionUnity->rk = 1;
+            }
+            else {
+                functionUnity->qk = registerMemory[instructions[pc].operand3].FU;
+                functionUnity->rk = 0;
+            }
+        }
+    }
+
     instructions[pc].pipeline.issueCheck = 1;
     instructions[pc].pipeline.readCheck = 0;
     instructions[pc].FU_name = functionUnity->name;
@@ -268,65 +230,65 @@ bool issue()
     {
         if (instructions[pc].operation == Move)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "move"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "move"));
         }
         else if (instructions[pc].operation == Add)
         {
-            if (!scoreboarding.FP_Add.busy)
-                return (update_issue(&scoreboarding.FP_Add, "add"));
+            if (!scoreboarding.FUs[ADD].busy)
+                return (update_issue(&scoreboarding.FUs[ADD], "add"));
         }
         else if (instructions[pc].operation == Sub)
         {
-            if (!scoreboarding.FP_Add.busy)
-                return (update_issue(&scoreboarding.FP_Add, "sub"));
+            if (!scoreboarding.FUs[ADD].busy)
+                return (update_issue(&scoreboarding.FUs[ADD], "sub"));
         }
         else if (instructions[pc].operation == And)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "and"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "and"));
         }
         else if (instructions[pc].operation == Or)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "or"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "or"));
         }
         else if (instructions[pc].operation == Slt)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "slt"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "slt"));
         }
         else if (instructions[pc].operation == Mult)
         {
-            if (!scoreboarding.FP_Mult1.busy)
-                return (update_issue(&scoreboarding.FP_Mult1, "mult"));
-            else if (!scoreboarding.FP_Mult2.busy)
-                return (update_issue(&scoreboarding.FP_Mult2, "mult"));
+            if (!scoreboarding.FUs[MULT1].busy)
+                return (update_issue(&scoreboarding.FUs[MULT1], "mult"));
+            else if (!scoreboarding.FUs[MULT2].busy)
+                return (update_issue(&scoreboarding.FUs[MULT2], "mult"));
         }
         else if (instructions[pc].operation == Div)
         {
-            if (!scoreboarding.FP_Div.busy)
-                return (update_issue(&scoreboarding.FP_Div, "div"));
+            if (!scoreboarding.FUs[DIV].busy)
+                return (update_issue(&scoreboarding.FUs[DIV], "div"));
         }
         else if (instructions[pc].operation == Li)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "li"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "li"));
         }
         else if (instructions[pc].operation == Addi)
         {
-            if (!scoreboarding.FP_Add.busy)
-                return (update_issue(&scoreboarding.FP_Add, "addi"));
+            if (!scoreboarding.FUs[ADD].busy)
+                return (update_issue(&scoreboarding.FUs[ADD], "addi"));
         }
         else if (instructions[pc].operation == Andi)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "andi"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "andi"));
         }
         else if (instructions[pc].operation == Ori)
         {
-            if (!scoreboarding.Int_unit.busy)
-                return (update_issue(&scoreboarding.Int_unit, "ori"));
+            if (!scoreboarding.FUs[LOG].busy)
+                return (update_issue(&scoreboarding.FUs[LOG], "ori"));
         }
     }
     return false;
@@ -339,6 +301,10 @@ bool read()
         if (!rawDependency() && instructions[i].pipeline.readCheck == 0)
         {
             instructions[i].pipeline.read = clock;
+            scoreboarding.FUs[instructions[i].FU_name].qj = 0;
+            scoreboarding.FUs[instructions[i].FU_name].qk = 0;
+            scoreboarding.FUs[instructions[i].FU_name].rj = false;
+            scoreboarding.FUs[instructions[i].FU_name].rk = false;
             instructions[i].pipeline.readCheck = 1;
             instructions[i].pipeline.executeCheck = 0;
         }
@@ -356,11 +322,11 @@ void print(FILE *file)
     }
     fprintf(file, "\n2) STATUS DAS UNIDADES FUNCIONAIS\n");
     fprintf(file, "UF   \t| Busy  |\tOp\t|\tFi\t|\tFj\t|\tFk\t|\tQj\t|\tQk\t|\tRj\t|\tRk\n");
-    fprintf(file, "Mult1\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FP_Mult1.busy, scoreboarding.FP_Mult1.operation, scoreboarding.FP_Mult1.fi, scoreboarding.FP_Mult1.fj, scoreboarding.FP_Mult1.fk, scoreboarding.FP_Mult1.qj, scoreboarding.FP_Mult1.qk, scoreboarding.FP_Mult1.rj, scoreboarding.FP_Mult1.rk);
-    fprintf(file, "Mult2\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FP_Mult2.busy, scoreboarding.FP_Mult2.operation, scoreboarding.FP_Mult2.fi, scoreboarding.FP_Mult2.fj, scoreboarding.FP_Mult2.fk, scoreboarding.FP_Mult2.qj, scoreboarding.FP_Mult2.qk, scoreboarding.FP_Mult2.rj, scoreboarding.FP_Mult2.rk);
-    fprintf(file, "Add  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FP_Add.busy, scoreboarding.FP_Add.operation, scoreboarding.FP_Add.fi, scoreboarding.FP_Add.fj, scoreboarding.FP_Add.fk, scoreboarding.FP_Add.qj, scoreboarding.FP_Add.qk, scoreboarding.FP_Add.rj, scoreboarding.FP_Add.rk);
-    fprintf(file, "Div  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FP_Div.busy, scoreboarding.FP_Div.operation, scoreboarding.FP_Div.fi, scoreboarding.FP_Div.fj, scoreboarding.FP_Div.fk, scoreboarding.FP_Div.qj, scoreboarding.FP_Div.qk, scoreboarding.FP_Div.rj, scoreboarding.FP_Div.rk);
-    fprintf(file, "Log  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.Int_unit.busy, scoreboarding.Int_unit.operation, scoreboarding.Int_unit.fi, scoreboarding.Int_unit.fj, scoreboarding.Int_unit.fk, scoreboarding.Int_unit.qj, scoreboarding.Int_unit.qk, scoreboarding.Int_unit.rj, scoreboarding.Int_unit.rk);
+    fprintf(file, "Mult1\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[MULT1].busy, scoreboarding.FUs[MULT1].operation, scoreboarding.FUs[MULT1].fi, scoreboarding.FUs[MULT1].fj, scoreboarding.FUs[MULT1].fk, scoreboarding.FUs[MULT1].qj, scoreboarding.FUs[MULT1].qk, scoreboarding.FUs[MULT1].rj, scoreboarding.FUs[MULT1].rk);
+    fprintf(file, "Mult2\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[MULT2].busy, scoreboarding.FUs[MULT2].operation, scoreboarding.FUs[MULT2].fi, scoreboarding.FUs[MULT2].fj, scoreboarding.FUs[MULT2].fk, scoreboarding.FUs[MULT2].qj, scoreboarding.FUs[MULT2].qk, scoreboarding.FUs[MULT2].rj, scoreboarding.FUs[MULT2].rk);
+    fprintf(file, "Add  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[ADD].busy, scoreboarding.FUs[ADD].operation, scoreboarding.FUs[ADD].fi, scoreboarding.FUs[ADD].fj, scoreboarding.FUs[ADD].fk, scoreboarding.FUs[ADD].qj, scoreboarding.FUs[ADD].qk, scoreboarding.FUs[ADD].rj, scoreboarding.FUs[ADD].rk);
+    fprintf(file, "Div  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[DIV].busy, scoreboarding.FUs[DIV].operation, scoreboarding.FUs[DIV].fi, scoreboarding.FUs[DIV].fj, scoreboarding.FUs[DIV].fk, scoreboarding.FUs[DIV].qj, scoreboarding.FUs[DIV].qk, scoreboarding.FUs[DIV].rj, scoreboarding.FUs[DIV].rk);
+    fprintf(file, "Log  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[LOG].busy, scoreboarding.FUs[LOG].operation, scoreboarding.FUs[LOG].fi, scoreboarding.FUs[LOG].fj, scoreboarding.FUs[LOG].fk, scoreboarding.FUs[LOG].qj, scoreboarding.FUs[LOG].qk, scoreboarding.FUs[LOG].rj, scoreboarding.FUs[LOG].rk);
 
     fprintf(file, "\n3) STATUS DOS REGISTRADORES\n");
     fprintf(file, "    t0  |  t1  |  t2  |  t3  |  t4  |  t5  |  t6  |  t7  |  s0  |  s1  |  s2  |  s3  |  s4  |  s5  |  s6  |  s7  |  t8  |  t9\n");

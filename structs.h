@@ -1,3 +1,7 @@
+#define NILL -1
+
+#define units_n 5
+
 enum registers
 {
     zero = 0b00000,
@@ -36,11 +40,11 @@ enum registers
 
 enum units
 {
-    MULT1 = 1,
-    MULT2 = 2,
-    DIV = 3,
-    ADD = 4,
-    INT = 5
+    MULT1 = 0,
+    MULT2 = 1,
+    DIV = 2,
+    ADD = 3,
+    LOG = 4
 };
 
 enum instructionFormat
@@ -64,8 +68,6 @@ enum operations
     Andi = 12,
     Ori = 13
 };
-
-#define NILL -1
 
 typedef struct Instruction_R // R instruction format
 {
@@ -93,19 +95,15 @@ typedef struct FunctionUnity
     unsigned int fi : 5;
     unsigned int fj : 5;
     unsigned int fk : 5;
-    unsigned int qj;
-    unsigned int qk;
-    bool rj;
-    bool rk;
+    int qj;
+    int qk;
+    int rj; // -1 = NILL, 0 = False, 1 = True
+    int rk; // -1 = NILL, 0 = False, 1 = True
 } FunctionUnity;
 
 typedef struct Scoreboarding
 {
-    FunctionUnity FP_Mult1;
-    FunctionUnity FP_Mult2;
-    FunctionUnity FP_Div;
-    FunctionUnity FP_Add;
-    FunctionUnity Int_unit;
+    FunctionUnity FUs[5];
 } Scoreboarding;
 
 typedef struct Pipeline
