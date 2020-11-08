@@ -36,12 +36,11 @@ enum registers
 
 enum units
 {
-    INT,
-    MULT1,
-    MULT2,
-    DIV,
-    ADD,
-    SUB
+    MULT1 = 1,
+    MULT2 = 2,
+    DIV = 3,
+    ADD = 4,
+    INT = 5
 };
 
 enum instructionFormat
@@ -78,7 +77,7 @@ typedef struct Instruction_R // R instruction format
     unsigned int funct : 6;  // Specifies the operation
 } Instruction_R;
 
-typedef struct Instruction_I // I instruction format
+typedef struct Instruction_I     // I instruction format
 {
     unsigned int opcode : 6;     // Specifies the operation
     unsigned int rs : 5;         // Origin register
@@ -88,16 +87,16 @@ typedef struct Instruction_I // I instruction format
 
 typedef struct FunctionUnity
 {
-    unsigned int busy : 1;
+    int name;
+    bool busy;
     char *operation;
     unsigned int fi : 5;
     unsigned int fj : 5;
     unsigned int fk : 5;
-    unsigned int qj : 3;
-    unsigned int qk : 3;
-    unsigned int rj : 1;
-    unsigned int rk : 1;
-    char *name;
+    unsigned int qj;
+    unsigned int qk;
+    bool rj;
+    bool rk;
 } FunctionUnity;
 
 typedef struct Scoreboarding
@@ -112,18 +111,23 @@ typedef struct Scoreboarding
 typedef struct Pipeline
 {
     unsigned int issue;
+    int issueCheck : 2; // -1 = Can't be done, 0 = Pending, 1 = Done
     unsigned int read;
+    int readCheck : 2;
     unsigned int execute;
+    int executeCheck : 2;
     unsigned int write;
+    int writeCheck : 2;
 } Pipeline;
 
 typedef struct Instruction
 {
     unsigned int type : 1;
     unsigned int operation : 6;
-    unsigned int operand1 : 5;
-    unsigned int operand2 : 5;
-    unsigned int operand3 : 16;
+    unsigned int operand1 : 5;  // Destination
+    unsigned int operand2 : 5;  // Origin 1
+    unsigned int operand3 : 16; // Origin 2 / Immediate
+    int FU_name;
     Pipeline pipeline;
 } Instruction;
 
@@ -135,6 +139,5 @@ typedef struct InstConfig
 typedef struct RegisterMemory
 {
     int value;
-    int busy : 2; // -1 -> Using on Write operation, 0 -> Not using
-    char *functionalUnityName;
+    int FU;
 } RegisterMemory;

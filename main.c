@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <string.h>
+#include <stdbool.h>
 #include "structs.h"
 #include "converter.h"
 #include "configFile.h"
