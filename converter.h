@@ -53,9 +53,9 @@ int inst_return(Instruction_R *R, Instruction_I *I, char *str) // Broke the line
     if (strcmp(data[0], "add") == 0 || strcmp(data[0], "and") == 0 || strcmp(data[0], "or") == 0 || strcmp(data[0], "slt") == 0 || strcmp(data[0], "sub") == 0 || strcmp(data[0], "mult") == 0 || strcmp(data[0], "div") == 0)
     {
         R->opcode = 0;
+        R->rd = register_map(data[1]);
         R->rs = register_map(data[2]);
         R->rt = register_map(data[3]);
-        R->rd = register_map(data[1]);
         R->shamt = 0;
         R->funct = function_map(data[0]);
         return 1;

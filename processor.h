@@ -32,19 +32,19 @@ Instruction readMemory(unsigned int inst)
     if (inst > 67108863)
     {
         temp.type = I;
-        temp.operand3 = convertTo(&inst, 16);   // Immediate
-        temp.operand2 = convertTo(&inst, 5);    // Origin 1
-        temp.operand1 = convertTo(&inst, 5);    // Destination
+        temp.operand3 = convertTo(&inst, 16); // Immediate
+        temp.operand1 = convertTo(&inst, 5);  // Destination
+        temp.operand2 = convertTo(&inst, 5);  // Origin 1
         temp.operation = convertTo(&inst, 6);
     }
     else
     {
         temp.type = R;
-        temp.operation = convertTo(&inst, 6);   
+        temp.operation = convertTo(&inst, 6);
         convertTo(&inst, 5);
-        temp.operand1 = convertTo(&inst, 5);    // Destination
-        temp.operand3 = convertTo(&inst, 5);    // Origin 2
-        temp.operand2 = convertTo(&inst, 5);    // Origin 1
+        temp.operand1 = convertTo(&inst, 5); // Destination
+        temp.operand3 = convertTo(&inst, 5); // Origin 2
+        temp.operand2 = convertTo(&inst, 5); // Origin 1
     }
     return temp;
 }
@@ -110,31 +110,17 @@ bool rawDependency()
 
 bool warDependency()
 {
-    if (instructions[pc].operation != Li)
-    {
-        if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
-            return true;
-    }
-    else
-    {
-        if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
-            return true;
-    }
+    if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
+        return true;
+
     return false;
 }
 
 bool wawDependency()
 {
-    if (instructions[pc].operation != Li)
-    {
-        if ((wawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
-            return true;
-    }
-    else
-    {
-        if ((wawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (wawCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
-            return true;
-    }
+    if ((wawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (wawCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
+        return true;
+
     return false;
 }
 
@@ -169,7 +155,8 @@ bool update_issue(FunctionUnity *functionUnity, char *nameOperation)
                 functionUnity->qj = NILL;
                 functionUnity->rj = 1;
             }
-            else {
+            else
+            {
                 functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
                 functionUnity->rj = 0;
             }
@@ -183,12 +170,13 @@ bool update_issue(FunctionUnity *functionUnity, char *nameOperation)
             functionUnity->fk = 0;
             functionUnity->qk = NILL;
             functionUnity->rk = NILL;
-            if(registerMemory[instructions[pc].operand2].FU == NILL)
+            if (registerMemory[instructions[pc].operand2].FU == NILL)
             {
                 functionUnity->qj = NILL;
                 functionUnity->rj = 1;
             }
-            else {
+            else
+            {
                 functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
                 functionUnity->rj = 0;
             }
@@ -197,21 +185,23 @@ bool update_issue(FunctionUnity *functionUnity, char *nameOperation)
         {
             functionUnity->fj = instructions[pc].operand2;
             functionUnity->fk = instructions[pc].operand3;
-            if(registerMemory[instructions[pc].operand2].FU == NILL)
+            if (registerMemory[instructions[pc].operand2].FU == NILL)
             {
                 functionUnity->qj = NILL;
                 functionUnity->rj = 1;
             }
-            else {
+            else
+            {
                 functionUnity->qj = registerMemory[instructions[pc].operand2].FU;
                 functionUnity->rj = 0;
             }
-            if(registerMemory[instructions[pc].operand3].FU == NILL)
+            if (registerMemory[instructions[pc].operand3].FU == NILL)
             {
                 functionUnity->qk = NILL;
                 functionUnity->rk = 1;
             }
-            else {
+            else
+            {
                 functionUnity->qk = registerMemory[instructions[pc].operand3].FU;
                 functionUnity->rk = 0;
             }
