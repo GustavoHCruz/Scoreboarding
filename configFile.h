@@ -4,18 +4,9 @@
 
 void initializeStruct(InstConfig *instructionConfig)
 {
-    instructionConfig->li = 0;
-    instructionConfig->move = 0;
-    instructionConfig->add = 0;
-    instructionConfig->addi = 0;
-    instructionConfig->sub = 0;
-    instructionConfig->or = 0;
-    instructionConfig->ori = 0;
-    instructionConfig->and = 0;
-    instructionConfig->andi = 0;
-    instructionConfig->slt = 0;
-    instructionConfig->mult = 0;
-    instructionConfig->div = 0;
+    for (int i=0;i<inst_n;i++){
+        instructionConfig->configs[i] = 0;
+    }
 }
 
 void inst_clock(char *clock, char *str, InstConfig *instructionsConfig)
@@ -28,29 +19,29 @@ void inst_clock(char *clock, char *str, InstConfig *instructionsConfig)
     int clockValue = atoi(clock);
 
     if (strcmp(instruction, "li") == 0)
-        instructionsConfig->li = clockValue;
+        instructionsConfig->configs[Li] = clockValue;
     else if (strcmp(instruction, "move") == 0)
-        instructionsConfig->move = clockValue;
+        instructionsConfig->configs[Move] = clockValue;
     else if (strcmp(instruction, "add") == 0)
-        instructionsConfig->add = clockValue;
+        instructionsConfig->configs[Add] = clockValue;
     else if (strcmp(instruction, "addi") == 0)
-        instructionsConfig->addi = clockValue;
+        instructionsConfig->configs[Addi] = clockValue;
     else if (strcmp(instruction, "sub") == 0)
-        instructionsConfig->sub = clockValue;
+        instructionsConfig->configs[Sub] = clockValue;
     else if (strcmp(instruction, "or") == 0)
-        instructionsConfig->or = clockValue;
+        instructionsConfig->configs[Or] = clockValue;
     else if (strcmp(instruction, "ori") == 0)
-        instructionsConfig->ori = clockValue;
+        instructionsConfig->configs[Ori] = clockValue;
     else if (strcmp(instruction, "and") == 0)
-        instructionsConfig->and = clockValue;
+        instructionsConfig->configs[And] = clockValue;
     else if (strcmp(instruction, "andi") == 0)
-        instructionsConfig->andi = clockValue;
+        instructionsConfig->configs[Andi] = clockValue;
     else if (strcmp(instruction, "slt") == 0)
-        instructionsConfig->slt = clockValue;
+        instructionsConfig->configs[Slt] = clockValue;
     else if (strcmp(instruction, "mult") == 0)
-        instructionsConfig->mult = clockValue;
+        instructionsConfig->configs[Mult] = clockValue;
     else if (strcmp(instruction, "div") == 0)
-        instructionsConfig->div = clockValue;
+        instructionsConfig->configs[Div] = clockValue;
 }
 
 InstConfig readInstructionsConfig(char *configFileName)

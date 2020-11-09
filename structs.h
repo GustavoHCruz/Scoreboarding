@@ -2,6 +2,8 @@
 
 #define units_n 5
 
+#define inst_n 64
+
 enum registers
 {
     zero = 0b00000,
@@ -79,7 +81,7 @@ typedef struct Instruction_R // R instruction format
     unsigned int funct : 6;  // Specifies the operation
 } Instruction_R;
 
-typedef struct Instruction_I     // I instruction format
+typedef struct Instruction_I // I instruction format
 {
     unsigned int opcode : 6;     // Specifies the operation
     unsigned int rs : 5;         // Origin register
@@ -111,9 +113,9 @@ typedef struct Pipeline
     unsigned int issue;
     int issueCheck : 2;
     unsigned int read;
-    int readCheck : 2;       // -1 = Can't be done, 0 = Pending, 1 = Done
+    int readCheck : 2; // -1 = Can't be done, 0 = Pending, 1 = Done
     unsigned int execute;
-    int executeCheck : 2;    // -1 = Can't be done, 0 = Pending, 1 = Done
+    int executeCheck : 2; // -1 = Can't be done, 0 = Pending, 1 = Done
     unsigned int write;
     int writeCheck : 2;
 } Pipeline;
@@ -131,7 +133,7 @@ typedef struct Instruction
 
 typedef struct InstConfig
 {
-    int li, move, add, addi, sub, or, ori, and, andi, slt, mult, div;
+    int configs[64]; // We have one position for each possible operation in MIPS 32
 } InstConfig;
 
 typedef struct RegisterMemory

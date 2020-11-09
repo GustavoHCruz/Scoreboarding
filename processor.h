@@ -6,7 +6,8 @@ int pc = 0;
 RegisterMemory registerMemory[32];
 Scoreboarding scoreboarding;
 Instruction *instructions = NULL;
-int waitingRead[5];
+int executionBuffer[32];
+InstConfig latencies;
 
 unsigned int convertTo(unsigned int *number, unsigned int length)
 {
@@ -69,13 +70,8 @@ void initialize()
         registerMemory[i].FU = NILL;
         registerMemory[i].value = NILL;
     }
-}
-
-bool rawCheck(FunctionUnity functionUnity, unsigned int operand)
-{
-    if (functionUnity.fi == operand)
-        return true;
-    return false;
+    for (size_t i = 0; i < 32; i++)
+        executionBuffer[i] = NILL;
 }
 
 bool warCheck(FunctionUnity functinoUnity, unsigned int operand)
@@ -92,25 +88,9 @@ bool wawCheck(FunctionUnity functionUnity, unsigned int operand)
     return false;
 }
 
-bool rawDependency()
+bool warDependency(int i)
 {
-    if (instructions[pc].operation != Li)
-    {
-        if ((rawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[DIV], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[ADD], instructions[pc].operand2)) || (rawCheck(scoreboarding.FUs[LOG], instructions[pc].operand2)))
-            return true;
-
-        if (instructions[pc].type == R)
-        {
-            if ((rawCheck(scoreboarding.FUs[MULT1], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[MULT2], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[DIV], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[ADD], instructions[pc].operand3)) || (rawCheck(scoreboarding.FUs[LOG], instructions[pc].operand3)))
-                return true;
-        }
-    }
-    return false;
-}
-
-bool warDependency()
-{
-    if ((warCheck(scoreboarding.FUs[MULT1], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[MULT2], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[DIV], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[ADD], instructions[pc].operand1)) || (warCheck(scoreboarding.FUs[LOG], instructions[pc].operand1)))
+    if ((warCheck(scoreboarding.FUs[MULT1], instructions[i].operand1)) || (warCheck(scoreboarding.FUs[MULT2], instructions[i].operand1)) || (warCheck(scoreboarding.FUs[DIV], instructions[i].operand1)) || (warCheck(scoreboarding.FUs[ADD], instructions[i].operand1)) || (warCheck(scoreboarding.FUs[LOG], instructions[i].operand1)))
         return true;
 
     return false;
@@ -284,19 +264,97 @@ bool issue()
     return false;
 }
 
-bool read()
+void read()
 {
     for (int i = 0; i < pc; i++)
     {
-        if (!rawDependency() && instructions[i].pipeline.readCheck == 0)
+        if (instructions[i].pipeline.readCheck == 0 && scoreboarding.FUs[instructions[i].FU_name].rj != 0 && scoreboarding.FUs[instructions[i].FU_name].rk != 0)
         {
             instructions[i].pipeline.read = clock;
-            scoreboarding.FUs[instructions[i].FU_name].qj = 0;
-            scoreboarding.FUs[instructions[i].FU_name].qk = 0;
-            scoreboarding.FUs[instructions[i].FU_name].rj = false;
-            scoreboarding.FUs[instructions[i].FU_name].rk = false;
+            scoreboarding.FUs[instructions[i].FU_name].qj = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].qk = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].rj = 0;
+            scoreboarding.FUs[instructions[i].FU_name].rk = 0;
             instructions[i].pipeline.readCheck = 1;
             instructions[i].pipeline.executeCheck = 0;
+        }
+    }
+}
+
+int ula(unsigned int operand2, unsigned int operand3, unsigned int operation)
+{
+    if (operation == Move)
+        return operand2;
+    else if (operation == Add)
+        return operand2 + registerMemory[operand3].value;
+    else if (operation == Sub)
+        return operand2 - registerMemory[operand3].value;
+    else if (operation == And)
+        return (operand2 && registerMemory[operand3].value);
+    else if (operation == Or)
+        return (operand2 || registerMemory[operand3].value);
+    else if (operation == Slt)
+        return (operand2 < registerMemory[operand3].value);
+    else if (operation == Mult)
+        return (operand2 * registerMemory[operand3].value);
+    else if (operation == Li)
+        return operand3;
+    else if (operation == Addi)
+        return (operand2 + operand3);
+    else if (operation == Andi)
+        return (operand2 && operand3);
+    else if (operation == Ori)
+        return (operand2 || operand3);
+}
+
+void execute()
+{
+    for (int i = 0; i < pc; i++)
+    {
+        if (instructions[i].pipeline.executeCheck == 0 && clock == instructions[i].pipeline.read + latencies.configs[instructions[i].operation])
+        {
+            instructions[i].pipeline.execute = clock;
+
+            executionBuffer[instructions[i].operand1] = ula(registerMemory[instructions[i].operand2].value, instructions[i].operand3, instructions[i].operation);
+
+            instructions[i].pipeline.executeCheck = 1;
+            instructions[i].pipeline.writeCheck = 0;
+        }
+    }
+}
+
+void write()
+{
+    for (int i = 0; i < pc; i++)
+    {
+        if (instructions[i].pipeline.writeCheck == 0 && !(warDependency(i)))
+        {
+            instructions[i].pipeline.write = clock;
+            registerMemory[instructions[i].operand1].value = executionBuffer[instructions[i].operand1];
+
+            for (int j = 0; j < units_n; j++)
+            {
+                if (scoreboarding.FUs[j].qj == instructions[i].FU_name)
+                {
+                    scoreboarding.FUs[j].rj = 1;
+                }
+                if (scoreboarding.FUs[j].qk == instructions[i].FU_name)
+                {
+                    scoreboarding.FUs[j].rk = 1;
+                }
+            }
+            scoreboarding.FUs[instructions[i].FU_name].busy = false;
+            scoreboarding.FUs[instructions[i].FU_name].operation = '\0';
+            scoreboarding.FUs[instructions[i].FU_name].fi = 0;
+            scoreboarding.FUs[instructions[i].FU_name].fj = 0;
+            scoreboarding.FUs[instructions[i].FU_name].fk = 0;
+            scoreboarding.FUs[instructions[i].FU_name].qj = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].qk = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].rj = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].rk = NILL;
+
+            registerMemory[instructions[i].operand1].FU = NILL;
+            instructions[i].pipeline.writeCheck = 1;
         }
     }
 }
@@ -305,10 +363,10 @@ void print(FILE *file)
 {
     fprintf(file, "============================================================ CICLO %i ============================================================\n", clock);
     fprintf(file, "1) STATUS DAS INSTRUCOES\n");
-    fprintf(file, "\tEmissao | Leitura de Operandos | Execucao | Escrita de Resultados\n");
+    fprintf(file, "\tEmissao\t|\tLeitura de Operandos\t|\tExecucao\t|\tEscrita de Resultados\n");
     for (int i = 0; i < pc; i++)
     {
-        fprintf(file, "I%i  %i       | %i                    | %i        | %i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
+        fprintf(file, "I%i  %i      \t|\t%i                   \t|\t%i       \t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
     }
     fprintf(file, "\n2) STATUS DAS UNIDADES FUNCIONAIS\n");
     fprintf(file, "UF   \t| Busy  |\tOp\t|\tFi\t|\tFj\t|\tFk\t|\tQj\t|\tQk\t|\tRj\t|\tRk\n");
@@ -319,41 +377,53 @@ void print(FILE *file)
     fprintf(file, "Log  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[LOG].busy, scoreboarding.FUs[LOG].operation, scoreboarding.FUs[LOG].fi, scoreboarding.FUs[LOG].fj, scoreboarding.FUs[LOG].fk, scoreboarding.FUs[LOG].qj, scoreboarding.FUs[LOG].qk, scoreboarding.FUs[LOG].rj, scoreboarding.FUs[LOG].rk);
 
     fprintf(file, "\n3) STATUS DOS REGISTRADORES\n");
-    fprintf(file, "    t0  |  t1  |  t2  |  t3  |  t4  |  t5  |  t6  |  t7  |  s0  |  s1  |  s2  |  s3  |  s4  |  s5  |  s6  |  s7  |  t8  |  t9\n");
+    fprintf(file, "   t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\n");
     fprintf(file, "UF ");
     for (int i = 8; i < 25; i++)
     {
-        fprintf(file, "%i | ", registerMemory[i].FU);
+        fprintf(file, "%i\t|\t", registerMemory[i].FU);
     }
     fprintf(file, "%i\n", registerMemory[25].FU);
 
     fprintf(file, "\n4) BANCO DE REGISTRADORES\n");
-    fprintf(file, "t0 | t1 | t2 | t3 | t4 | t5 | t6 | t7 | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | t8 | t9\n");
+    fprintf(file, "t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\n");
     for (int i = 8; i < 25; i++)
     {
-        fprintf(file, "%i | ", registerMemory[i].value);
+        fprintf(file, "%i\t|\t", registerMemory[i].value);
     }
     fprintf(file, "%i\n", registerMemory[25].value);
+}
+
+bool end(int n){
+    for (int i=0;i<n;i++){
+        if (instructions[i].pipeline.writeCheck != 1)
+            return true;
+    }
+    return false;
 }
 
 void scoreboardingFunction(InstConfig instructionConfig, unsigned int instructionsMemory[], int memoryLength, char *outputName)
 {
     instructions = malloc(sizeof(Instruction) * memoryLength);
+    latencies = instructionConfig;
 
     initialize();
     FILE *output = fopen(outputName, "w+");
-    while (pc < memoryLength)
+    while (end(memoryLength))
     {
         clock++;
-        // write();
+        write();
 
-        // execute();
+        execute();
 
-        // read();
-        instructions[pc] = readMemory(instructionsMemory[pc]);
+        read();
 
-        if (issue())
-            pc++;
+        if (pc < memoryLength)
+        {
+            instructions[pc] = readMemory(instructionsMemory[pc]);
+            if (issue())
+                pc++;
+        }
 
         print(output);
     }
