@@ -4,6 +4,8 @@
 
 #define inst_n 64
 
+#define register_n 32
+
 enum registers
 {
     zero = 0b00000,
