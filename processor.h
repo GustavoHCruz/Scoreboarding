@@ -76,7 +76,7 @@ void initialize()
 
 bool warCheck(FunctionUnity functinoUnity, unsigned int operand)
 {
-    if ((functinoUnity.fj == operand && functinoUnity.fj != 0) || (functinoUnity.fk == operand && functinoUnity.fk != 0))
+    if ((functinoUnity.fj == operand && functinoUnity.fj != 0 && functinoUnity.rj != 0) || (functinoUnity.fk == operand && functinoUnity.fk != 0 && functinoUnity.rk != 0))
         return true;
     return false;
 }
@@ -297,6 +297,8 @@ int ula(unsigned int operand2, unsigned int operand3, unsigned int operation)
         return (operand2 < registerMemory[operand3].value);
     else if (operation == Mult)
         return (operand2 * registerMemory[operand3].value);
+    else if (operation == Div)
+        return (operand2 / registerMemory[operand3].value);
     else if (operation == Li)
         return operand3;
     else if (operation == Addi)
@@ -359,6 +361,40 @@ void write()
     }
 }
 
+void printFUs(FILE *file, char *FU_name, int FU)
+{
+    fprintf(file, "%s \t|", FU_name);
+    if (scoreboarding.FUs[FU].busy)
+        fprintf(file, "\tYes \t|");
+    else
+        fprintf(file, "\tNo  \t|");
+    if (scoreboarding.FUs[FU].operation == NULL)
+        fprintf(file, "\t    \t|");
+    else
+        fprintf(file, "\t %s  \t|", scoreboarding.FUs[FU].operation);
+    fprintf(file, "\t  %i  \t|\t  %i  \t|\t  %i  \t|", scoreboarding.FUs[FU].fi, scoreboarding.FUs[FU].fj, scoreboarding.FUs[FU].fk);
+    if (scoreboarding.FUs[FU].qj == NILL)
+        fprintf(file, "\t    \t|");
+    else
+        fprintf(file, "\t %i  \t|", scoreboarding.FUs[FU].qj);
+    if (scoreboarding.FUs[FU].qk == NILL)
+        fprintf(file, "\t    \t|");
+    else
+        fprintf(file, "\t %i  \t|", scoreboarding.FUs[FU].qk);
+    if (scoreboarding.FUs[FU].rj == NILL)
+        fprintf(file, "\t    \t|");
+    else if (scoreboarding.FUs[FU].rj == 0)
+        fprintf(file, "\tFalse\t|");
+    else
+        fprintf(file, "\tTrue\t|");
+    if (scoreboarding.FUs[FU].rk == NILL)
+        fprintf(file, "\t    \n");
+    else if (scoreboarding.FUs[FU].rk == 0)
+        fprintf(file, "\tFalse\n");
+    else
+        fprintf(file, "\tTrue\n");
+}
+
 void print(FILE *file)
 {
     fprintf(file, "============================================================ CICLO %i ============================================================\n", clock);
@@ -366,36 +402,50 @@ void print(FILE *file)
     fprintf(file, "\tEmissao\t|\tLeitura de Operandos\t|\tExecucao\t|\tEscrita de Resultados\n");
     for (int i = 0; i < pc; i++)
     {
-        fprintf(file, "I%i  %i      \t|\t%i                   \t|\t%i       \t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
+        fprintf(file, "I%i  %i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
     }
     fprintf(file, "\n2) STATUS DAS UNIDADES FUNCIONAIS\n");
-    fprintf(file, "UF   \t| Busy  |\tOp\t|\tFi\t|\tFj\t|\tFk\t|\tQj\t|\tQk\t|\tRj\t|\tRk\n");
-    fprintf(file, "Mult1\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[MULT1].busy, scoreboarding.FUs[MULT1].operation, scoreboarding.FUs[MULT1].fi, scoreboarding.FUs[MULT1].fj, scoreboarding.FUs[MULT1].fk, scoreboarding.FUs[MULT1].qj, scoreboarding.FUs[MULT1].qk, scoreboarding.FUs[MULT1].rj, scoreboarding.FUs[MULT1].rk);
-    fprintf(file, "Mult2\t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[MULT2].busy, scoreboarding.FUs[MULT2].operation, scoreboarding.FUs[MULT2].fi, scoreboarding.FUs[MULT2].fj, scoreboarding.FUs[MULT2].fk, scoreboarding.FUs[MULT2].qj, scoreboarding.FUs[MULT2].qk, scoreboarding.FUs[MULT2].rj, scoreboarding.FUs[MULT2].rk);
-    fprintf(file, "Add  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[ADD].busy, scoreboarding.FUs[ADD].operation, scoreboarding.FUs[ADD].fi, scoreboarding.FUs[ADD].fj, scoreboarding.FUs[ADD].fk, scoreboarding.FUs[ADD].qj, scoreboarding.FUs[ADD].qk, scoreboarding.FUs[ADD].rj, scoreboarding.FUs[ADD].rk);
-    fprintf(file, "Div  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[DIV].busy, scoreboarding.FUs[DIV].operation, scoreboarding.FUs[DIV].fi, scoreboarding.FUs[DIV].fj, scoreboarding.FUs[DIV].fk, scoreboarding.FUs[DIV].qj, scoreboarding.FUs[DIV].qk, scoreboarding.FUs[DIV].rj, scoreboarding.FUs[DIV].rk);
-    fprintf(file, "Log  \t|\t%i\t|\t%s\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\t|\t%i\n", scoreboarding.FUs[LOG].busy, scoreboarding.FUs[LOG].operation, scoreboarding.FUs[LOG].fi, scoreboarding.FUs[LOG].fj, scoreboarding.FUs[LOG].fk, scoreboarding.FUs[LOG].qj, scoreboarding.FUs[LOG].qk, scoreboarding.FUs[LOG].rj, scoreboarding.FUs[LOG].rk);
+    fprintf(file, "UF   \t|\tBusy\t|\t Op \t|\t Fi \t|\t Fj \t|\t Fk \t|\t Qj \t|\t Qk \t|\t Rj \t|\t Rk \n");
+    printFUs(file, "Mult1", MULT1);
+    printFUs(file, "Mult2", MULT2);
+    printFUs(file, "Add", ADD);
+    printFUs(file, "Div", DIV);
+    printFUs(file, "Log", LOG);
 
     fprintf(file, "\n3) STATUS DOS REGISTRADORES\n");
     fprintf(file, "   t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\n");
     fprintf(file, "UF ");
     for (int i = 8; i < 25; i++)
     {
-        fprintf(file, "%i\t|\t", registerMemory[i].FU);
+        if (registerMemory[i].FU == NILL)
+            fprintf(file, "  \t|\t");
+        else
+            fprintf(file, "%i\t|\t", registerMemory[i].FU);
     }
-    fprintf(file, "%i\n", registerMemory[25].FU);
+    if (registerMemory[25].value == NILL)
+        fprintf(file, "  \n");
+    else
+        fprintf(file, "%i\n", registerMemory[25].FU);
 
     fprintf(file, "\n4) BANCO DE REGISTRADORES\n");
     fprintf(file, "t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\n");
     for (int i = 8; i < 25; i++)
     {
-        fprintf(file, "%i\t|\t", registerMemory[i].value);
+        if (registerMemory[i].value == NILL)
+            fprintf(file, "  \t|\t");
+        else
+            fprintf(file, "%i\t|\t", registerMemory[i].value);
     }
-    fprintf(file, "%i\n", registerMemory[25].value);
+    if (registerMemory[25].value == NILL)
+        fprintf(file, "  \n");
+    else
+        fprintf(file, "%i\n", registerMemory[25].value);
 }
 
-bool end(int n){
-    for (int i=0;i<n;i++){
+bool end(int n)
+{
+    for (int i = 0; i < n; i++)
+    {
         if (instructions[i].pipeline.writeCheck != 1)
             return true;
     }
