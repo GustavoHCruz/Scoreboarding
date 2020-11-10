@@ -64,6 +64,7 @@ void initialize()
         scoreboarding.FUs[i].qk = NILL;
         scoreboarding.FUs[i].rj = NILL;
         scoreboarding.FUs[i].rk = NILL;
+        scoreboarding.FUs[i].clear = false;
     }
     for (size_t i = 0; i < register_n; i++)
     {
@@ -389,18 +390,27 @@ void write()
                     scoreboarding.FUs[j].rk = 1;
                 }
             }
-            scoreboarding.FUs[instructions[i].FU_name].busy = false;
-            scoreboarding.FUs[instructions[i].FU_name].operation = '\0';
-            scoreboarding.FUs[instructions[i].FU_name].fi = 0;
-            scoreboarding.FUs[instructions[i].FU_name].fj = 0;
-            scoreboarding.FUs[instructions[i].FU_name].fk = 0;
-            scoreboarding.FUs[instructions[i].FU_name].qj = NILL;
-            scoreboarding.FUs[instructions[i].FU_name].qk = NILL;
-            scoreboarding.FUs[instructions[i].FU_name].rj = NILL;
-            scoreboarding.FUs[instructions[i].FU_name].rk = NILL;
+            scoreboarding.FUs[instructions[i].FU_name].clear = true;
 
             registerMemory[instructions[i].operand1].FU = NILL;
             instructions[i].pipeline.writeCheck = 1;
+        }
+    }
+}
+
+void clearFU(){
+    for (size_t i=0;i<units_n;i++){
+        if(scoreboarding.FUs[i].clear == true){
+            scoreboarding.FUs[i].busy = false;
+            scoreboarding.FUs[i].operation = '\0';
+            scoreboarding.FUs[i].fi = 0;
+            scoreboarding.FUs[i].fj = 0;
+            scoreboarding.FUs[i].fk = 0;
+            scoreboarding.FUs[i].qj = NILL;
+            scoreboarding.FUs[i].qk = NILL;
+            scoreboarding.FUs[i].rj = NILL;
+            scoreboarding.FUs[i].rk = NILL;
+            scoreboarding.FUs[i].clear = false;
         }
     }
 }
@@ -478,15 +488,15 @@ void printRegisterFU(FILE *file, int i)
     if (i == NILL)
         fprintf(file, "\t   \t|");
     else if (i == 0)
-        fprintf(file, " Mult1 |");
+        fprintf(file, " mult1 |");
     else if (i == 1)
-        fprintf(file, " Mult2 |");
+        fprintf(file, " mult2 |");
     else if (i == 2)
-        fprintf(file, "\tDiv\t|");
+        fprintf(file, "\tdiv\t|");
     else if (i == 3)
-        fprintf(file, "\tAdd\t|");
+        fprintf(file, "\tadd\t|");
     else if (i == 4)
-        fprintf(file, "\tLog\t|");
+        fprintf(file, "\tlog\t|");
 }
 
 void printInstructionFU(FILE *file, int i)
@@ -494,24 +504,24 @@ void printInstructionFU(FILE *file, int i)
     if (i == NILL)
         fprintf(file, "\t\t   \t|");
     else if (i == 0)
-        fprintf(file, "\t Mult1  |");
+        fprintf(file, "\t mult1  |");
     else if (i == 1)
-        fprintf(file, "\t Mult2  |");
+        fprintf(file, "\t mult2  |");
     else if (i == 2)
-        fprintf(file, "\tDiv\t\t|");
+        fprintf(file, "\tdiv\t\t|");
     else if (i == 3)
-        fprintf(file, "\tAdd\t\t|");
+        fprintf(file, "\tadd\t\t|");
     else if (i == 4)
-        fprintf(file, "\tLog\t\t|");
+        fprintf(file, "\tlog\t\t|");
 }
 
 void printFUs(FILE *file, char *FU_name, int FU)
 {
     fprintf(file, "%s \t|", FU_name);
     if (scoreboarding.FUs[FU].busy)
-        fprintf(file, "\tYes \t|");
+        fprintf(file, "\tsim \t|");
     else
-        fprintf(file, "\tNo  \t|");
+        fprintf(file, "\tnao \t|");
     if (scoreboarding.FUs[FU].operation == NULL)
         fprintf(file, "\t    \t|");
     else
@@ -611,7 +621,7 @@ void scoreboardingFunction(InstConfig instructionConfig, unsigned int instructio
             if (issue())
                 pc++;
         }
-
+        clearFU();
         print(output);
     }
     free(instructions);

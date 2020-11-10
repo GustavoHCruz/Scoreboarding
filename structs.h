@@ -103,6 +103,7 @@ typedef struct FunctionUnity
     int qk;
     int rj; // -1 = NILL, 0 = False, 1 = True
     int rk; // -1 = NILL, 0 = False, 1 = True
+    bool clear;
 } FunctionUnity;
 
 typedef struct Scoreboarding
