@@ -65,6 +65,7 @@ void initialize()
         scoreboarding.FUs[i].rj = NILL;
         scoreboarding.FUs[i].rk = NILL;
         scoreboarding.FUs[i].clear = false;
+        scoreboarding.FUs[i].instruction_n = NILL;
     }
     for (size_t i = 0; i < register_n; i++)
     {
@@ -89,7 +90,8 @@ bool rawDependency(int i)
             if (instructions[i].FU_name != scoreboarding.FUs[j].name)
             {
                 if (rawCheck(scoreboarding.FUs[j], instructions[i].operand2))
-                    return true;
+                    if (scoreboarding.FUs[j].instruction_n != -1 && (i > scoreboarding.FUs[j].instruction_n))
+                        return true;
             }
         }
         if (instructions[i].type == R)
@@ -99,7 +101,8 @@ bool rawDependency(int i)
                 if (instructions[i].FU_name != scoreboarding.FUs[j].name)
                 {
                     if (rawCheck(scoreboarding.FUs[j], instructions[i].operand3))
-                        return true;
+                        if (scoreboarding.FUs[j].instruction_n != -1 && (i > scoreboarding.FUs[j].instruction_n))
+                            return true;
                 }
             }
         }
@@ -223,6 +226,7 @@ bool update_issue(FunctionUnity *functionUnity, char *nameOperation)
     instructions[pc].pipeline.issueCheck = 1;
     instructions[pc].pipeline.readCheck = 0;
     instructions[pc].FU_name = functionUnity->name;
+    functionUnity->instruction_n = pc;
     return true;
 }
 
@@ -311,14 +315,23 @@ void read()
             {
                 scoreboarding.FUs[instructions[i].FU_name].rj = NILL;
                 scoreboarding.FUs[instructions[i].FU_name].rk = NILL;
+                instructions[i].value3 = instructions[i].operand3;
             }
             else
             {
                 scoreboarding.FUs[instructions[i].FU_name].rj = 0;
                 if (instructions[i].type == I)
+                {
                     scoreboarding.FUs[instructions[i].FU_name].rk = NILL;
+                    instructions[i].value2 = registerMemory[instructions[i].operand2].value;
+                    instructions[i].value3 = instructions[i].operand3;
+                }
                 else
+                {
                     scoreboarding.FUs[instructions[i].FU_name].rk = 0;
+                    instructions[i].value2 = registerMemory[instructions[i].operand2].value;
+                    instructions[i].value3 = registerMemory[instructions[i].operand3].value;
+                }
             }
             instructions[i].pipeline.readCheck = 1;
             instructions[i].pipeline.executeCheck = 0;
@@ -326,24 +339,27 @@ void read()
     }
 }
 
-int ula(unsigned int operand2, unsigned int operand3, unsigned int operation)
+int ula(int operand2, int operand3, unsigned int operation)
 {
     if (operation == Move)
         return operand2;
-    else if (operation == Add)
-        return operand2 + registerMemory[operand3].value;
+    else if (operation == Add){
+       
+        return (operand2 + operand3);
+
+    }
     else if (operation == Sub)
-        return operand2 - registerMemory[operand3].value;
+        return operand2 - operand3;
     else if (operation == And)
-        return (operand2 & registerMemory[operand3].value);
+        return (operand2 & operand3);
     else if (operation == Or)
-        return (operand2 | registerMemory[operand3].value);
+        return (operand2 | operand3);
     else if (operation == Slt)
-        return (operand2 < registerMemory[operand3].value);
+        return (operand2 < operand3);
     else if (operation == Mult)
-        return (operand2 * registerMemory[operand3].value);
+        return (operand2 * operand3);
     else if (operation == Div)
-        return (operand2 / registerMemory[operand3].value);
+        return (operand2 / operand3);
     else if (operation == Li)
         return operand3;
     else if (operation == Addi)
@@ -362,7 +378,7 @@ void execute()
         {
             instructions[i].pipeline.execute = clock;
 
-            executionBuffer[instructions[i].operand1] = ula(registerMemory[instructions[i].operand2].value, instructions[i].operand3, instructions[i].operation);
+            executionBuffer[instructions[i].operand1] = ula(instructions[i].value2, instructions[i].value3, instructions[i].operation);
 
             instructions[i].pipeline.executeCheck = 1;
             instructions[i].pipeline.writeCheck = 0;
@@ -400,9 +416,12 @@ void write()
     }
 }
 
-void clearFU(){
-    for (size_t i=0;i<units_n;i++){
-        if(scoreboarding.FUs[i].clear == true){
+void clearFU()
+{
+    for (size_t i = 0; i < units_n; i++)
+    {
+        if (scoreboarding.FUs[i].clear == true)
+        {
             scoreboarding.FUs[i].busy = false;
             scoreboarding.FUs[i].operation = '\0';
             scoreboarding.FUs[i].fi = 0;
@@ -413,6 +432,7 @@ void clearFU(){
             scoreboarding.FUs[i].rj = NILL;
             scoreboarding.FUs[i].rk = NILL;
             scoreboarding.FUs[i].clear = false;
+            scoreboarding.FUs[i].instruction_n = NILL;
         }
     }
 }

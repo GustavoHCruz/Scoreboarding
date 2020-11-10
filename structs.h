@@ -104,6 +104,7 @@ typedef struct FunctionUnity
     int rj; // -1 = NILL, 0 = False, 1 = True
     int rk; // -1 = NILL, 0 = False, 1 = True
     bool clear;
+    int instruction_n;
 } FunctionUnity;
 
 typedef struct Scoreboarding
@@ -130,6 +131,8 @@ typedef struct Instruction
     unsigned int operand1 : 5;  // Destination
     unsigned int operand2 : 5;  // Origin 1
     unsigned int operand3 : 16; // Origin 2 / Immediate
+    int value2;
+    int value3;
     int FU_name;
     Pipeline pipeline;
 } Instruction;

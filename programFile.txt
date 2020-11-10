@@ -1,5 +1,6 @@
-li $s0, 10
-li $s1, 5
-li $s2, 2
-add $s4, $s0, $s1
-mult $s5, $s4, $s0
+li $s6, 2
+li $s2, 5
+li $s4, 2
+mult $s0, $s2, $s4
+div $s1, $s0, $s6
+add $s6, $s0, $s2
