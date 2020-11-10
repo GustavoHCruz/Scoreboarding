@@ -384,10 +384,12 @@ void write()
                 if (scoreboarding.FUs[j].qj == instructions[i].FU_name)
                 {
                     scoreboarding.FUs[j].rj = 1;
+                    scoreboarding.FUs[j].qj = NILL;
                 }
                 if (scoreboarding.FUs[j].qk == instructions[i].FU_name)
                 {
                     scoreboarding.FUs[j].rk = 1;
+                    scoreboarding.FUs[j].qk = NILL;
                 }
             }
             scoreboarding.FUs[instructions[i].FU_name].clear = true;
@@ -536,37 +538,37 @@ void printFUs(FILE *file, char *FU_name, int FU)
     if (scoreboarding.FUs[FU].rj == NILL)
         fprintf(file, "\t    \t|");
     else if (scoreboarding.FUs[FU].rj == 0)
-        fprintf(file, "\tFalse\t|");
+        fprintf(file, "\tnao \t|");
     else
-        fprintf(file, "\tTrue\t|");
+        fprintf(file, "\tsim \t|");
     if (scoreboarding.FUs[FU].rk == NILL)
         fprintf(file, "\t    \n");
     else if (scoreboarding.FUs[FU].rk == 0)
-        fprintf(file, "\tFalse\n");
+        fprintf(file, "\tnao\n");
     else
-        fprintf(file, "\tTrue\n");
+        fprintf(file, "\tsim\n");
 }
 
 void print(FILE *file)
 {
-    fprintf(file, "============================================================ CICLO %i ============================================================\n", clock);
-    fprintf(file, "1) STATUS DAS INSTRUCOES\n");
-    fprintf(file, "\tEmissao\t|\tLeitura de Operandos\t|\tExecucao\t|\tEscrita de Resultados\n");
+    fprintf(file, "============================================================ ciclo %i ============================================================\n", clock);
+    fprintf(file, "1) status das instrucoes\n");
+    fprintf(file, "\temissao\t|\tleitura de operandos\t|\texecucao\t|\tescrita de resultados\n");
     for (int i = 0; i < pc; i++)
     {
-        fprintf(file, "I%i\t%i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
+        fprintf(file, "i%i\t%i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
     }
-    fprintf(file, "\n2) STATUS DAS UNIDADES FUNCIONAIS\n");
-    fprintf(file, "UF   \t|\tBusy\t|\t Op \t|\t Fi \t|\t Fj \t|\t Fk \t|\t Qj \t|\t Qk \t|\t Rj \t|\t Rk \n");
-    printFUs(file, "Mult1", MULT1);
-    printFUs(file, "Mult2", MULT2);
-    printFUs(file, "Add", ADD);
-    printFUs(file, "Div", DIV);
-    printFUs(file, "Log", LOG);
+    fprintf(file, "\n2) status das unidades funcionais\n");
+    fprintf(file, "uf   \t|\tbusy\t|\t op \t|\t fi \t|\t fj \t|\t fk \t|\t qj \t|\t qk \t|\t rj \t|\t rk \n");
+    printFUs(file, "mult1", MULT1);
+    printFUs(file, "mult2", MULT2);
+    printFUs(file, "add", ADD);
+    printFUs(file, "div", DIV);
+    printFUs(file, "log", LOG);
 
-    fprintf(file, "\n3) STATUS DOS REGISTRADORES\n");
+    fprintf(file, "\n3) status dos registradores\n");
     fprintf(file, "   t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\t|\n");
-    fprintf(file, "UF ");
+    fprintf(file, "uf ");
     for (int i = 8; i < 25; i++)
     {
         printRegisterFU(file, registerMemory[i].FU);
@@ -574,7 +576,7 @@ void print(FILE *file)
     printRegisterFU(file, registerMemory[25].FU);
     fprintf(file, "\n");
 
-    fprintf(file, "\n4) BANCO DE REGISTRADORES\n");
+    fprintf(file, "\n4) banco de registradores\n");
     fprintf(file, "t0\t|\tt1\t|\tt2\t|\tt3\t|\tt4\t|\tt5\t|\tt6\t|\tt7\t|\ts0\t|\ts1\t|\ts2\t|\ts3\t|\ts4\t|\ts5\t|\ts6\t|\ts7\t|\tt8\t|\tt9\t|\n");
     for (int i = 8; i < 25; i++)
     {
