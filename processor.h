@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <math.h>
-
 int clock = 0;
 int pc = 0;
 RegisterMemory registerMemory[register_n];
@@ -576,7 +573,7 @@ void print(FILE *file)
     fprintf(file, "\temissao\t|\tleitura de operandos\t|\texecucao\t|\tescrita de resultados\n");
     for (int i = 0; i < pc; i++)
     {
-        fprintf(file, "i%i\t%i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
+        fprintf(file, "i%i\t%i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i+1, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
     }
     fprintf(file, "\n2) status das unidades funcionais\n");
     fprintf(file, "uf   \t|\tbusy\t|\t op \t|\t fi \t|\t fj \t|\t fk \t|\t qj \t|\t qk \t|\t rj \t|\t rk \n");

@@ -88,26 +88,6 @@ int function_map(char *opcode) // Function to map funct field (for R format)
         return 26;
 }
 
-// void int_to_function_map(unsigned int operationInt, char *operationChar) // Function to map funct field (for R format)
-// {
-//     if (operationInt == 39)  // We get the opcode from nor to represent move's opcode
-//         strcpy(*operationChar, "move");
-//     else if (operationInt == 32)
-//         strcpy(*operationChar, "add");
-//     else if (operationInt == 34)  
-//         strcpy(*operationChar, "sub");
-//     else if (operationInt == 36)
-//         strcpy(*operationChar, "and");
-//     else if (operationInt == 37)  
-//         strcpy(*operationChar, "or");
-//     else if (operationInt == 42)
-//         strcpy(*operationChar, "slt");
-//     else if (operationInt == 24)  
-//         strcpy(*operationChar, "mult");
-//     else if (operationInt == 26)
-//         strcpy(*operationChar, "div");
-// }
-
 int opcode_map(char *opcode) // Function to map opcode field (for I format)
 {
     if (strcmp(opcode, "li") == 0) // We get the opcode from addiu to represent li's opcode
