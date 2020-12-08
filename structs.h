@@ -114,13 +114,13 @@ typedef struct Scoreboarding
 
 typedef struct Pipeline
 {
-    int issue;
+    unsigned int issue;
     int issueCheck : 2;
-    int read;
+    unsigned int read;
     int readCheck : 2; // -1 = Can't be done, 0 = Pending, 1 = Done
-    int execute;
+    unsigned int execute;
     int executeCheck : 2; // -1 = Can't be done, 0 = Pending, 1 = Done
-    int write;
+    unsigned int write;
     int writeCheck : 2;
 } Pipeline;
 

@@ -19,13 +19,13 @@ Instruction readMemory(unsigned int inst)
 {
     Instruction temp;
     temp.FU_name = NILL;
-    temp.pipeline.issue = NILL;
+    temp.pipeline.issue = 0;
     temp.pipeline.issueCheck = 0;
-    temp.pipeline.read = NILL;
+    temp.pipeline.read = 0;
     temp.pipeline.readCheck = -1;
-    temp.pipeline.execute = NILL;
+    temp.pipeline.execute = 0;
     temp.pipeline.executeCheck = -1;
-    temp.pipeline.write = NILL;
+    temp.pipeline.write = 0;
     temp.pipeline.writeCheck = -1;
     if (inst > 67108863)
     {
@@ -341,10 +341,7 @@ int ula(int operand2, int operand3, unsigned int operation)
     if (operation == Move)
         return operand2;
     else if (operation == Add)
-    {
-
         return (operand2 + operand3);
-    }
     else if (operation == Sub)
         return operand2 - operand3;
     else if (operation == And)
@@ -574,19 +571,19 @@ void print(FILE *file)
     for (int i = 0; i < pc; i++)
     {
         fprintf(file, "i%i\t", i + 1);
-        if (instructions[i].pipeline.issue != NILL)
+        if (instructions[i].pipeline.issue != 0)
             fprintf(file, "%i \t\t|\t", instructions[i].pipeline.issue);
         else
             fprintf(file, "  \t\t|\t");
-        if (instructions[i].pipeline.read != NILL)
+        if (instructions[i].pipeline.read != 0)
             fprintf(file, "%i               \t\t|\t", instructions[i].pipeline.read);
         else
             fprintf(file, "                \t\t|\t");
-        if (instructions[i].pipeline.execute != NILL)
+        if (instructions[i].pipeline.execute != 0)
             fprintf(file, "%i   \t\t|\t", instructions[i].pipeline.execute);
         else
             fprintf(file, "    \t\t|\t");
-        if (instructions[i].pipeline.write != NILL)
+        if (instructions[i].pipeline.write != 0)
             fprintf(file, "%i\n", instructions[i].pipeline.write);
         else
             fprintf(file, " \n");
