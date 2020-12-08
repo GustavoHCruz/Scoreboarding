@@ -15,6 +15,7 @@ Atualmente, o Scoreboarding suporta as seguintes operações:
 * slt
 * mult
 * div
+
 Os comandos li e move são comandos extras colocados no simulador. Eles seguem a sintáxe descrita no [GreenCard](https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_Green_Sheet.pdf).
 
 # Como usar
