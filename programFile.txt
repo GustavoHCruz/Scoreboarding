@@ -1,6 +1,0 @@
-li $s6, 2
-li $s2, 2
-mult $s0, $s2, $s4
-sub $s7, $s6, $s2
-div $s1, $s0, $s6
-add $s6, $s7, $s2

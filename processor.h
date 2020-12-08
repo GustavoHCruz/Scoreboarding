@@ -19,13 +19,13 @@ Instruction readMemory(unsigned int inst)
 {
     Instruction temp;
     temp.FU_name = NILL;
-    temp.pipeline.issue = 0;
+    temp.pipeline.issue = NILL;
     temp.pipeline.issueCheck = 0;
-    temp.pipeline.read = 0;
+    temp.pipeline.read = NILL;
     temp.pipeline.readCheck = -1;
-    temp.pipeline.execute = 0;
+    temp.pipeline.execute = NILL;
     temp.pipeline.executeCheck = -1;
-    temp.pipeline.write = 0;
+    temp.pipeline.write = NILL;
     temp.pipeline.writeCheck = -1;
     if (inst > 67108863)
     {
@@ -340,10 +340,10 @@ int ula(int operand2, int operand3, unsigned int operation)
 {
     if (operation == Move)
         return operand2;
-    else if (operation == Add){
-       
-        return (operand2 + operand3);
+    else if (operation == Add)
+    {
 
+        return (operand2 + operand3);
     }
     else if (operation == Sub)
         return operand2 - operand3;
@@ -573,7 +573,23 @@ void print(FILE *file)
     fprintf(file, "\temissao\t|\tleitura de operandos\t|\texecucao\t|\tescrita de resultados\n");
     for (int i = 0; i < pc; i++)
     {
-        fprintf(file, "i%i\t%i \t\t|\t%i               \t\t|\t%i   \t\t|\t%i\n", i+1, instructions[i].pipeline.issue, instructions[i].pipeline.read, instructions[i].pipeline.execute, instructions[i].pipeline.write);
+        fprintf(file, "i%i\t", i + 1);
+        if (instructions[i].pipeline.issue != NILL)
+            fprintf(file, "%i \t\t|\t", instructions[i].pipeline.issue);
+        else
+            fprintf(file, "  \t\t|\t");
+        if (instructions[i].pipeline.read != NILL)
+            fprintf(file, "%i               \t\t|\t", instructions[i].pipeline.read);
+        else
+            fprintf(file, "                \t\t|\t");
+        if (instructions[i].pipeline.execute != NILL)
+            fprintf(file, "%i   \t\t|\t", instructions[i].pipeline.execute);
+        else
+            fprintf(file, "    \t\t|\t");
+        if (instructions[i].pipeline.write != NILL)
+            fprintf(file, "%i\n", instructions[i].pipeline.write);
+        else
+            fprintf(file, " \n");
     }
     fprintf(file, "\n2) status das unidades funcionais\n");
     fprintf(file, "uf   \t|\tbusy\t|\t op \t|\t fi \t|\t fj \t|\t fk \t|\t qj \t|\t qk \t|\t rj \t|\t rk \n");
