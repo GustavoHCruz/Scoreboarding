@@ -147,13 +147,3 @@ typedef struct RegisterMemory
     int value;
     int FU;
 } RegisterMemory;
-
-typedef struct thread_info
-{
-    pthread_t thread_id;
-    int thread_num;
-    char *configFileName;
-    char *outputFileName;
-    char *programName;
-    int memoryLength;
-} thread_info;

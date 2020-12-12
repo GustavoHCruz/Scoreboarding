@@ -10,8 +10,18 @@
 #include "configFile.h"
 #include "processor.h"
 
+typedef struct thread_info
+{
+    pthread_t thread_id;
+    int thread_num;
+    char *configFileName;
+    char *outputFileName;
+    char *programName;
+    int memoryLength;
+} thread_info;
 
-void *core(void *arg)
+/* function to be executed */
+void *nucleoProcessador(void *arg)
 {
     thread_info *infos = arg;
 
@@ -73,13 +83,12 @@ int main(int argc, char *argv[])
     tinfo[1].memoryLength = memoryLength2;
     tinfo[1].outputFileName = outputFileName2;
 
-    for (int i = 0; i < num_thread; i ++) {
-        pthread_create(&tinfo[i].thread_id, NULL, core, &tinfo[i]);
-    }
 
-    for (int i = 0; i < num_thread; i ++) {
-        pthread_join(tinfo[i].thread_id, NULL);
-    }
+    pthread_create(&tinfo[0].thread_id, NULL, nucleoProcessador, &tinfo[0]);
+    pthread_create(&tinfo[1].thread_id, NULL, nucleoProcessador, &tinfo[1]);
 
-    free(tinfo);
+    pthread_join(tinfo[0].thread_id, NULL);
+    pthread_join(tinfo[1].thread_id, NULL);
+
+    printf("Acabou!");
 }
