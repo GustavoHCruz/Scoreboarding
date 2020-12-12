@@ -21,10 +21,9 @@ typedef struct thread_info
 } thread_info;
 
 /* function to be executed */
-void *nucleoProcessador(void *arg)
+void *thread(void *arg)
 {
     thread_info *infos = arg;
-
     unsigned int instructionsMemory[infos->memoryLength];
     converter(infos->programName, instructionsMemory);
     InstConfig instructionsConfig = readInstructionsConfig(infos->configFileName);
@@ -84,9 +83,11 @@ int main(int argc, char *argv[])
     tinfo[1].outputFileName = outputFileName2;
 
 
-    pthread_create(&tinfo[0].thread_id, NULL, nucleoProcessador, &tinfo[0]);
-    pthread_create(&tinfo[1].thread_id, NULL, nucleoProcessador, &tinfo[1]);
+    /* create */
+    pthread_create(&tinfo[0].thread_id, NULL, thread, &tinfo[0]);
+    pthread_create(&tinfo[1].thread_id, NULL, thread, &tinfo[1]);
 
+    /* wait to finish */
     pthread_join(tinfo[0].thread_id, NULL);
     pthread_join(tinfo[1].thread_id, NULL);
 
