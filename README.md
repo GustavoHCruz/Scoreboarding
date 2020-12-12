@@ -27,4 +27,4 @@ OutputFile representa o nome do arquivo de saída, onde será impresso o resulta
 
 ProgramFile representa o arquivo contendo o código em Assembly que será lido pelo simulador. Este deve respeitas as convenções do MIPS32, descritas em [GreenCard](https://inst.eecs.berkeley.edu/~cs61c/resources/MIPS_Green_Sheet.pdf), e estar de acordo com os comandos que são usados aqui.
 
-memoryLength representa o tamanho que será alocado para o programa que será executado. O tamanho é um número inteiro e deve ser igual ou menor à quantidade de linhas no código Assembly.
+MemoryLength representa o tamanho que será alocado para o programa que será executado. O tamanho é um número inteiro e deve ser igual ou menor à quantidade de linhas no código Assembly.
